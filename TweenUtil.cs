@@ -240,10 +240,6 @@ namespace Tween
             GetInstance().animList.Remove(tweenData);
             StackObjectPool<TweenScript>.PutObject(tweenData);
         }
-        /// <summary>
-        /// 立即完成一个动画/到最后一帧
-        /// </summary>
-        /// <param name="tweenData"></param>
         public static void FinishAnim(TweenScript tweenData)
         {
             tweenData.currentTime = tweenData.totalTime;
@@ -272,7 +268,6 @@ namespace Tween
         #endregion
         #region 实例部分
         public List<TweenScript> animList = new List<TweenScript>();
-        // Update is called once per frame
         public void Update()
         {
             for (int i = 0; i < animList.Count; i++)
@@ -285,10 +280,8 @@ namespace Tween
                     {
                         animList.Remove(tweenTmp);
                         i--;
-                        //释放
                         StackObjectPool<TweenScript>.PutObject(tweenTmp);
                     }
-                    //执行回调
                     tweenTmp.executeCallBack();
                 }
             }
@@ -401,13 +394,10 @@ namespace Tween
     /// </summary>
     public enum PathType
     {
-        Line, // 直线
-        PathBreak, // 多段直线
-        PathLinear, // 曲线运动
+        Line,
+        PathBreak, 
+        PathLinear, 
     }
-    /// <summary>
-    /// 动画重复类型
-    /// </summary>
     public enum LoopType
     {
         Once,

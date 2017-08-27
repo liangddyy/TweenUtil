@@ -262,16 +262,6 @@ namespace Tween
 
         #region UGUI Alpha        
 
-        /// <summary>
-        /// Tns the ugui alpha.
-        /// </summary>
-        /// <param name="rectTrans">The rect trans.</param>
-        /// <param name="from">From.0 - 1</param>
-        /// <param name="to">To. 0 - 1</param>
-        /// <param name="time">The time.</param>
-        /// <param name="delayTime">The delay time.</param>
-        /// <param name="isChild">if set to <c>true</c> [is child].</param>
-        /// <returns></returns>
         public static TweenScript TnUguiAlpha(this RectTransform rectTrans, float? from, float to,
             float time,
             float delayTime = 0,

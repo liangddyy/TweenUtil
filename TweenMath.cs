@@ -9,22 +9,9 @@ namespace Tween
         /// </summary>
         public static Vector3 CatmullRomPoint(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
         {
-            //            Vector3 a = 0.5f * (2f * p1);
-            //            Vector3 b = 0.5f * (p2 - p0);
-            //            Vector3 c = 0.5f * (2f * p0 - 5f * p1 + 4f * p2 - p3);
-            //            Vector3 d = 0.5f * (-p0 + 3f * p1 - 3f * p2 + p3);
-            //            Vector3 pos = a + (b * t) + (c * t * t) + (d * t * t * t);
-            //            return pos;
             return p1 + (0.5f * (p2 - p0) * t) + 0.5f * (2f * p0 - 5f * p1 + 4f * p2 - p3) * t * t +
                    0.5f * (-p0 + 3f * p1 - 3f * p2 + p3) * t * t * t;
         }
-        /// <summary>
-        /// Get 角度
-        /// Catmull-Rom 曲线算法
-        /// </summary>
-        /// <param name="t">The t.</param>
-        /// <param name="points">The points.</param>
-        /// <returns></returns>
         public static Vector3 CatmullRomTangent(float t, Vector3[] points)
         {
             float omt = 1f - t;
@@ -357,10 +344,5 @@ namespace Tween
                 return InBounce(b + c / 2, to, t * 2f - d, d);
             }
         }
-        //outInExpo,
-        //inBack,
-        //outBack,
-        //inOutBack,
-        //outInBack,
     }
 }
