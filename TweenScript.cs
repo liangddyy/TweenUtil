@@ -58,8 +58,6 @@ namespace Tween
 
         public bool isPause = false;
 
-//        public bool isReverse = false;
-
         //路径
         public Vector3[] pathPoints = null; //路径
 
@@ -67,7 +65,6 @@ namespace Tween
 
         private int currentStep = 0;
 
-        //        public float[] m_floatContral = null;
         //自定义函数
         public AnimCustomMethodVector3 customMethodV3;
 
@@ -280,6 +277,13 @@ namespace Tween
             ResetPathInfo();
         }
 
+        public void Reverse()
+        {
+            currentTime = totalTime - currentTime;
+            PingpangExchange();
+            isDone = false;
+        }
+
         /// <summary>
         /// 是否继续循环播放动画
         /// false 将回收脚本
@@ -296,13 +300,9 @@ namespace Tween
                     Restart();
                     break;
                 case LoopType.PingPang:
-                    ExchangeV2();
-                    ExchangeColor();
-                    ExchangeAlpha();
-                    ExchangePos();
-                    isDone = false;
                     currentTime = 0;
-                    ResetPathInfo(true);
+                    isDone = false;
+                    PingpangExchange();
                     break;
             }
             if (loopCount == -1)
@@ -315,6 +315,15 @@ namespace Tween
                 if (loopCount > 0) return true;
                 return !isRecyclable;
             }
+        }
+
+        private void PingpangExchange()
+        {
+            ExchangeV2();
+            ExchangeColor();
+            ExchangeAlpha();
+            ExchangePos();
+            ResetPathInfo(true);
         }
 
         #region 循环逻辑

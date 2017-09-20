@@ -9,7 +9,7 @@ namespace Tween
     /// </summary>
     public static class TweenExtension
     {
-        #region 暂停和继续对象身上所有动画 //todo 需要测试暂停和播放动画
+        #region 播放控制/暂停/重置/反转等
 
         /// <summary>
         /// 对象身上的所有动画
@@ -20,8 +20,19 @@ namespace Tween
             PauseOrContinue(trans.gameObject, true);
         }
 
+        public static void TnReverse(this Transform trans)
+        {
+            for (int i = 0; i < TweenUtil.GetInstance().animList.Count; i++)
+            {
+                if (TweenUtil.GetInstance().animList[i].animGameObject == trans.gameObject)
+                {
+                    TweenUtil.GetInstance().animList[i].Reverse();
+                }
+            }
+        }
+
         /// <summary>
-        /// 对象身上的所有动画
+        /// 继续播放对象身上的所有动画
         /// </summary>
         /// <param name="trans">The trans.</param>
         public static void TnPlay(this Transform trans)
@@ -32,7 +43,7 @@ namespace Tween
         /// <summary>
         /// 所有动画立即从头开始
         /// </summary>
-        public static void TnPlayFromStart(this Transform trans)
+        public static void TnRestart(this Transform trans)
         {
             PauseOrContinue(trans.gameObject, isReset: true);
         }
@@ -52,10 +63,6 @@ namespace Tween
                 }
             }
         }
-
-        #endregion
-
-        #region 停止对象身上所有动画
 
         /// <summary>
         /// 停止一个对象身上的所有动画
@@ -448,6 +455,7 @@ namespace Tween
             if (path.Length < 2)
             {
                 pathType = PathType.Line; //小于1个点。
+                Debug.LogError("Path point it's too short ");
             }
             else
             {
