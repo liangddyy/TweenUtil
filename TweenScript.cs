@@ -12,61 +12,87 @@ namespace Tween
 
         //基本变量
         public GameObject animGameObject;
+
         public AnimType animType;
         public PathType pathType = PathType.Line;
         public bool isDone = false;
         public float currentTime = 0;
         public float totalTime = 0;
         private float currentPercentage; // 可不用初始化或重置
+
+
         //V3
         public Vector3 fromV3;
+
         public Vector3 toV3;
+
         //V2
         public Vector2 fromV2;
+
         public Vector2 toV2;
+
         //Float
         public float fromFloat = 0;
+
         public float toFloat = 0;
+
         //Move To(优先 toV3)
         public Transform toTransform;
+
         //Color
         public Color fromColor;
+
         public Color toColor;
+
         List<Color> m_oldColor = new List<Color>();
+
         //闪烁
         public float blinkTime = 0;
+
         float blinkCurrentTime = 0;
+
         //其他设置
         public bool isChild = false;
+
         public bool isLocal = false;
+
         public bool isPause = false;
-        // public bool isReverse = false;
+
+//        public bool isReverse = false;
+
         //路径
         public Vector3[] pathPoints = null; //路径
+
         private float[] pathWeith;
+
         private int currentStep = 0;
+
         //        public float[] m_floatContral = null;
         //自定义函数
         public AnimCustomMethodVector3 customMethodV3;
+
         public AnimCustomMethodVector2 customMethodV2;
+
         public AnimCustomMethodFloat customMethodFloat;
+
         //缓存变量
         RectTransform m_rectRransform;
+
         Transform m_transform;
 
         #endregion
 
-        #region 非必须初始化变量
+        #region 非必须初始化变量/动画循环/延迟/缓动等。
 
         private bool isRecyclable = true;
-        //动画回调参数
-        private object[] animParameter;
+        private object[] animParameter;        //动画回调参数
         private AnimCallBack animCallBack;
         private float delayTime = 0;
         private bool isIgnoreTimeScale = false;
-        private Ease easeType = Ease.Default;
+        private Ease easeType = Ease.Linear;
         private int loopCount = -1; // 动画重复次数
         private LoopType loopType = LoopType.Once;
+        private AnimationCurve curve;
 
         /// <summary>
         /// </summary>
@@ -107,6 +133,13 @@ namespace Tween
         public TweenScript SetEase(Ease ease)
         {
             easeType = ease;
+            return this;
+        }
+
+        public TweenScript SetEase(AnimationCurve animationCurve)
+        {
+            easeType = Ease.Default;
+            curve = animationCurve;
             return this;
         }
 
@@ -259,7 +292,6 @@ namespace Tween
                 case LoopType.Once:
                     ResetPathInfo();
                     return !isRecyclable; // 回收脚本与否
-                // return false;
                 case LoopType.Loop:
                     Restart();
                     break;
@@ -457,7 +489,6 @@ namespace Tween
         /// </summary>
         public void OnPush()
         {
-            // Debug.Log("OnPop");
             isPause = false;
             isIgnoreTimeScale = false;
             delayTime = 0;
@@ -852,7 +883,10 @@ namespace Tween
         {
             return GetInterp(oldValue, aimValue, currentTime, totalTime);
         }
-
+        /// <summary>
+        /// 曲线 缓动 插值时间
+        /// </summary>
+        /// <returns></returns>
         float GetInterpTimePercentage()
         {
             return GetInterp(0, 1, currentTime / totalTime, 1);
@@ -866,7 +900,7 @@ namespace Tween
         {
             switch (easeType)
             {
-                case Ease.Default:
+                // 线性
                 case Ease.Linear:
                     return Mathf.Lerp(fromValue, aimValue, current / total);
                 case Ease.InBack:
@@ -929,6 +963,9 @@ namespace Tween
                     return TweenMath.InOutBounce(fromValue, aimValue, current, total);
                 case Ease.OutInBounce:
                     return TweenMath.OutInBounce(fromValue, aimValue, current, total);
+                // animationcurve
+                case Ease.Default:
+                    return curve.Evaluate(current / total) * (aimValue - fromValue) + fromValue;
             }
             return 0;
         }
