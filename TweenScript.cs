@@ -498,6 +498,8 @@ namespace Tween
         /// </summary>
         public void OnPush()
         {
+            loopType = LoopType.Once;
+            easeType = Ease.Linear;
             isPause = false;
             isIgnoreTimeScale = false;
             delayTime = 0;
@@ -547,7 +549,7 @@ namespace Tween
 
         public void UguiAlphaInit(bool isChild)
         {
-            Debug.Log(animGameObject.name);
+            // Debug.Log(animGameObject.name);
             m_animObjectList_Image.Clear();
             m_animObjectList_Text.Clear();
             m_oldColor.Clear();
