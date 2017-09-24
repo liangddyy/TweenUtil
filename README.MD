@@ -26,7 +26,7 @@
 transform.TnMove(null, Vector3.zero, 2f);
 
 // 直线移动。从当前位置移动到原点。并且循环。运动一次2s。缓动函数OutBounce。
-transform.TnMove(null, Vector3.zero, 2f);.SetLoopType(LoopType.PingPang).SetEase(Ease.OutBounce);
+transform.TnMove(null, Vector3.zero, 2f).SetLoopType(LoopType.PingPang).SetEase(Ease.OutBounce);
 
 // 曲线移动。从当前位置开始，依次通过 vector3[] nodePoints
 transform.TnPathMove(null, pathTest.nodePoints, 2);
