@@ -38,4 +38,4 @@ transform.TnScale();
 ...
 ```
 
-> 如果你想看完整的代码和示例，可以在[Unity商店](https://github.com/liangddyy/TweenUtil) 下载。
+> 如果你想看完整的代码和示例，可以在[Unity商店]https://www.assetstore.unity3d.com/cn/#!/content/97821) 下载。
