@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
 
-namespace Tween
+namespace TN
 {
     public class TweenScript : IStackObject
     {
@@ -59,9 +59,9 @@ namespace Tween
         public bool isPause = false;
 
         //路径
-        public Vector3[] pathPoints = null; //路径
+        public Vector3[] pathNodes = null; //路径
 
-        private float[] pathWeith;
+        private float[] pathWeight; // 路径的权重
 
         private int currentStep = 0;
 
@@ -82,15 +82,16 @@ namespace Tween
         #region 非必须初始化变量/动画循环/延迟/缓动等。
 
         private bool isRecyclable = true;
-        private object[] animParameter;        //动画回调参数
+        private object[] animParameter; //动画回调参数
         private AnimCallBack animCallBack;
+        private bool isExcutedCallback;
         private float delayTime = 0;
         private bool isIgnoreTimeScale = false;
         private Ease easeType = Ease.Linear;
         private int loopCount = -1; // 动画重复次数
         private LoopType loopType = LoopType.Once;
         private AnimationCurve curve;
-
+        
         /// <summary>
         /// </summary>
         /// <param name="isable">false 不回收脚本</param>
@@ -105,6 +106,7 @@ namespace Tween
         {
             animCallBack = callBack;
             animParameter = parameter;
+            isExcutedCallback = false;
             return this;
         }
 
@@ -150,6 +152,7 @@ namespace Tween
             {
                 return;
             }
+
             if (delayTime <= 0)
             {
                 if (isIgnoreTimeScale)
@@ -172,80 +175,86 @@ namespace Tween
                     delayTime -= Time.deltaTime;
                 }
             }
+
             if (currentTime >= totalTime)
             {
                 currentTime = totalTime;
                 isDone = true;
             }
-            try
+
+//            try
+//            {
+            switch (animType)
             {
-                switch (animType)
-                {
-                    case AnimType.UGUI_Color:
-                        UguiColor();
-                        break;
-                    case AnimType.UGUI_Alpha:
-                        UguiAlpha();
-                        break;
-                    case AnimType.UGUI_AnchoredPosition:
-                        UguiPosition();
-                        break;
-                    case AnimType.UGUI_AnchoredRotate:
-                        UguiRotate();
-                        break;
-                    case AnimType.UGUI_AnchoredLocalRotate:
-                        UguiRotate();
-                        break;
-                    case AnimType.UGUI_AnchoredScale:
-                        UguiScale();
-                        break;
-                    case AnimType.UGUI_Size:
-                        SizeDelta();
-                        break;
-                    case AnimType.Position:
-                        Position();
-                        break;
-                    case AnimType.LocalPosition:
-                        LocalPosition();
-                        break;
-                    case AnimType.LocalScale:
-                        LocalScale();
-                        break;
-                    case AnimType.LocalRotate:
-                        LocalRotate();
-                        break;
-                    case AnimType.Rotate:
-                        Rotate();
-                        break;
-                    case AnimType.Color:
-                        UpdateColor();
-                        break;
-                    case AnimType.Alpha:
-                        UpdateAlpha();
-                        break;
-                    case AnimType.Custom_Vector3:
-                        CustomMethodVector3();
-                        break;
-                    case AnimType.Custom_Vector2:
-                        CustomMethodVector2();
-                        break;
-                    case AnimType.Custom_Float:
-                        CustomMethodFloat();
-                        break;
-                    case AnimType.Blink:
-                        Blink();
-                        break;
-                }
+                case AnimType.UGUI_Color:
+                    UguiColor();
+                    break;
+                case AnimType.UGUI_Alpha:
+                    UguiAlpha();
+                    break;
+                case AnimType.UGUI_AnchoredPosition:
+                    UguiPosition();
+                    break;
+                case AnimType.UGUI_AnchoredRotate:
+                    UguiRotate();
+                    break;
+                case AnimType.UGUI_AnchoredLocalRotate:
+                    UguiRotate();
+                    break;
+                case AnimType.UGUI_AnchoredScale:
+                    UguiScale();
+                    break;
+                case AnimType.UGUI_Size:
+                    SizeDelta();
+                    break;
+                case AnimType.Position:
+                    Position();
+                    break;
+                case AnimType.LocalPosition:
+                    LocalPosition();
+                    break;
+                case AnimType.LocalScale:
+                    LocalScale();
+                    break;
+                case AnimType.LocalRotate:
+                    LocalRotate();
+                    break;
+                case AnimType.Rotate:
+                    Rotate();
+                    break;
+                case AnimType.Color:
+                    UpdateColor();
+                    break;
+                case AnimType.Alpha:
+                    UpdateAlpha();
+                    break;
+                case AnimType.Custom_Vector3:
+                    CustomMethodVector3();
+                    break;
+                case AnimType.Custom_Vector2:
+                    CustomMethodVector2();
+                    break;
+                case AnimType.Custom_Float:
+                    CustomMethodFloat();
+                    break;
+                case AnimType.Blink:
+                    Blink();
+                    break;
             }
-            catch (Exception e)
-            {
-                Debug.LogError("TweenUtil Error Exception: " + e.ToString());
-            }
+
+//            }
+//            catch (Exception e)
+//            {
+//                Debug.LogError("TweenUtil Error Exception: " + e.ToString());
+//            }
         }
 
         //动画播放完毕执行回调
         public void executeCallBack()
         {
+            if (isExcutedCallback)
+                return;
+            isExcutedCallback = true;
             try
             {
                 if (animCallBack != null)
@@ -267,6 +276,7 @@ namespace Tween
         public void Play()
         {
             isPause = false;
+            isExcutedCallback = false;
         }
 
         public void Restart()
@@ -275,6 +285,7 @@ namespace Tween
             isDone = false;
             currentTime = 0;
             ResetPathInfo();
+            isExcutedCallback = false;
         }
 
         public void Reverse()
@@ -305,6 +316,7 @@ namespace Tween
                     PingpangExchange();
                     break;
             }
+
             if (loopCount == -1)
             {
                 return true;
@@ -334,17 +346,19 @@ namespace Tween
             {
                 return;
             }
+
             currentStep = 0;
             if (isExchange)
             {
-                Array.Reverse(pathPoints);
+                Array.Reverse(pathNodes);
                 InitPathWeight();
                 return;
             }
-            if (pathWeith.Length > 1)
+
+            if (pathWeight.Length > 1)
             {
                 // 重置已插值量
-                pathWeith[pathWeith.Length - 1] = 0;
+                pathWeight[pathWeight.Length - 1] = 0;
             }
         }
 
@@ -386,98 +400,115 @@ namespace Tween
 
         #region 初始化/公共
 
-        public void Init()
+        public TweenScript Init()
         {
-            switch (animType)
+            try
             {
-                case AnimType.UGUI_Color:
-                    UguiColorInit(isChild);
-                    break;
-                case AnimType.UGUI_Alpha:
-                    UguiAlphaInit(isChild);
-                    break;
-                case AnimType.UGUI_AnchoredPosition:
-                case AnimType.UGUI_AnchoredRotate:
-                case AnimType.UGUI_AnchoredLocalRotate:
-                case AnimType.UGUI_AnchoredScale:
-                    UguiAnchoredInit();
-                    break;
-                case AnimType.UGUI_Size:
-                    UguiAnchoredInit();
-                    break;
-                case AnimType.Color:
-                    ColorInit(isChild);
-                    break;
-                case AnimType.Alpha:
-                    AlphaInit(isChild);
-                    break;
-                case AnimType.Position:
-                    TransfromInit();
-                    break;
-                case AnimType.LocalPosition:
-                    TransfromInit();
-                    break;
-                case AnimType.LocalScale:
-                    TransfromInit();
-                    break;
-                case AnimType.LocalRotate:
-                    TransfromInit();
-                    break;
-                case AnimType.Rotate:
-                    TransfromInit();
-                    break;
+                switch (animType)
+                {
+                    case AnimType.UGUI_Color:
+                        UguiColorInit(isChild);
+                        break;
+                    case AnimType.UGUI_Alpha:
+                        UguiAlphaInit(isChild);
+                        break;
+                    case AnimType.UGUI_AnchoredPosition:
+                    case AnimType.UGUI_AnchoredRotate:
+                    case AnimType.UGUI_AnchoredLocalRotate:
+                    case AnimType.UGUI_AnchoredScale:
+                        UguiAnchoredInit();
+                        break;
+                    case AnimType.UGUI_Size:
+                        UguiAnchoredInit();
+                        break;
+                    case AnimType.Color:
+                        ColorInit(isChild);
+                        break;
+                    case AnimType.Alpha:
+                        AlphaInit(isChild);
+                        break;
+                    case AnimType.Position:
+                        TransfromInit();
+                        break;
+                    case AnimType.LocalPosition:
+                        TransfromInit();
+                        break;
+                    case AnimType.LocalScale:
+                        TransfromInit();
+                        break;
+                    case AnimType.LocalRotate:
+                        TransfromInit();
+                        break;
+                    case AnimType.Rotate:
+                        TransfromInit();
+                        break;
+                }
+
+                InitPathWeight();
             }
-            InitPathWeight();
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+                isDone = true;
+            }
+
+            return this;
         }
 
         private void InitPathWeight()
         {
             currentStep = 0;
-            if (pathType == PathType.PathLinear)
+            if (pathType == PathType.CatmullRom)
             {
                 float part = 20;
-                pathWeith = new float[pathPoints.Length];
+                pathWeight = new float[pathNodes.Length];
                 float sum = 0;
                 Vector3 oldVector3 = Vector3.zero, nowVector3 = Vector3.zero;
-                for (int i = 0; i < pathPoints.Length - 1; i++)
+                for (int i = 0; i < pathNodes.Length - 1; i++)
                 {
-                    pathWeith[i] = 0; //此时保存长度
-                    oldVector3 = TweenMath.CatmullRomPoint(pathPoints[LimitRangeInt(i - 1, pathPoints.Length - 1)],
-                        pathPoints[LimitRangeInt(i, pathPoints.Length - 1)],
-                        pathPoints[LimitRangeInt(i + 1, pathPoints.Length - 1)],
-                        pathPoints[LimitRangeInt(i + 2, pathPoints.Length - 1)], 0);
+                    pathWeight[i] = 0; //此时保存长度
+                    oldVector3 = TweenMath.CatmullRomPoint(pathNodes[LimitRangeInt(i - 1, pathNodes.Length - 1)],
+                        pathNodes[LimitRangeInt(i, pathNodes.Length - 1)],
+                        pathNodes[LimitRangeInt(i + 1, pathNodes.Length - 1)],
+                        pathNodes[LimitRangeInt(i + 2, pathNodes.Length - 1)], 0);
                     for (int j = 1; j <= part; j++)
                     {
-                        nowVector3 = TweenMath.CatmullRomPoint(pathPoints[LimitRangeInt(i - 1, pathPoints.Length - 1)],
-                            pathPoints[LimitRangeInt(i, pathPoints.Length - 1)],
-                            pathPoints[LimitRangeInt(i + 1, pathPoints.Length - 1)],
-                            pathPoints[LimitRangeInt(i + 2, pathPoints.Length - 1)], j / part);
-                        pathWeith[i] += Vector3.Distance(oldVector3, nowVector3);
+                        nowVector3 = TweenMath.CatmullRomPoint(pathNodes[LimitRangeInt(i - 1, pathNodes.Length - 1)],
+                            pathNodes[LimitRangeInt(i, pathNodes.Length - 1)],
+                            pathNodes[LimitRangeInt(i + 1, pathNodes.Length - 1)],
+                            pathNodes[LimitRangeInt(i + 2, pathNodes.Length - 1)], j / part);
+                        pathWeight[i] += Vector3.Distance(oldVector3, nowVector3);
                         oldVector3 = nowVector3;
                     }
-                    sum += pathWeith[i];
+
+                    sum += pathWeight[i];
                 }
-                for (int i = 0; i < pathWeith.Length - 1; i++)
+
+                for (int i = 0; i < pathWeight.Length - 1; i++)
                 {
-                    pathWeith[i] = pathWeith[i] / sum; // 插值百分比
+                    pathWeight[i] = pathWeight[i] / sum; // 插值百分比
                 }
-                pathWeith[pathWeith.Length - 1] = 0; //保存已插值完成的百分比
+
+                pathWeight[pathWeight.Length - 1] = 0; //保存已插值完成的百分比
             }
-            if (pathType == PathType.PathBreak)
+
+            if (pathType == PathType.Linear)
             {
                 // 根据距离分配时间
-                pathWeith = new float[pathPoints.Length];
+                pathWeight = new float[pathNodes.Length];
                 float sum = 0;
-                for (int i = 0; i < pathPoints.Length - 1; i++)
+                for (int i = 0; i < pathNodes.Length - 1; i++)
                 {
-                    pathWeith[i] = Vector3.Distance(pathPoints[i], pathPoints[i + 1]);
-                    sum += pathWeith[i];
+                    pathWeight[i] = Vector3.Distance(pathNodes[i], pathNodes[i + 1]);
+                    sum += pathWeight[i];
                 }
-                for (int i = 0; i < pathWeith.Length - 1; i++)
+
+                for (int i = 0; i < pathWeight.Length - 1; i++)
                 {
-                    pathWeith[i] = pathWeith[i] / sum; // 插值百分比
+                    pathWeight[i] = pathWeight[i] / sum; // 插值百分比
                 }
-                pathWeith[pathWeith.Length - 1] = 0; //已插值完成的百分比
+
+                pathWeight[pathWeight.Length - 1] = 0; //已插值完成的百分比
             }
         }
 
@@ -508,7 +539,7 @@ namespace Tween
             totalTime = 0;
             loopCount = -1;
             pathType = PathType.Line;
-            pathPoints = null;
+            pathNodes = null;
             currentStep = 0;
             //            m_floatContral = null;
             //toTransform = null;
@@ -564,6 +595,7 @@ namespace Tween
                         m_oldColor.Add(images[i].color);
                     }
                 }
+
                 Text[] texts = animGameObject.GetComponentsInChildren<Text>();
                 for (int i = 0; i < texts.Length; i++)
                 {
@@ -580,12 +612,14 @@ namespace Tween
                     m_animObjectList_Image.Add(image);
                     m_oldColor.Add(image.color);
                 }
+
                 if (text != null)
                 {
                     m_animObjectList_Text.Add(text);
                     m_oldColor.Add(text.color);
                 }
             }
+
             SetUGUIAlpha(fromFloat);
         }
 
@@ -608,6 +642,7 @@ namespace Tween
                 m_animObjectList_Image[i].color = newColor;
                 index++;
             }
+
             for (int i = 0; i < m_animObjectList_Text.Count; i++)
             {
                 newColor = m_oldColor[index];
@@ -644,6 +679,7 @@ namespace Tween
                         //Debug.LogError("name:" + images[i].gameObject.name);
                     }
                 }
+
                 Text[] texts = animGameObject.GetComponentsInChildren<Text>();
                 for (int i = 0; i < texts.Length; i++)
                 {
@@ -658,11 +694,13 @@ namespace Tween
                 {
                     m_animObjectList_Image.Add(image);
                 }
+
                 if (text != null)
                 {
                     m_animObjectList_Text.Add(text);
                 }
             }
+
             SetUGUIColor(fromColor);
         }
 
@@ -672,6 +710,7 @@ namespace Tween
             {
                 m_animObjectList_Image[i].color = color;
             }
+
             for (int i = 0; i < m_animObjectList_Text.Count; i++)
             {
                 m_animObjectList_Text[i].color = color;
@@ -691,6 +730,7 @@ namespace Tween
                 Debug.LogError(m_transform.name + "缺少RectTransform组件，不能进行sizeDelta变换！！");
                 return;
             }
+
             m_rectRransform.sizeDelta = GetInterpV3(fromV2, toV2);
         }
 
@@ -796,6 +836,7 @@ namespace Tween
                     m_oldColor.Add(image.color);
                 }
             }
+
             SetAlpha(fromFloat);
         }
 
@@ -842,6 +883,7 @@ namespace Tween
                     m_animObjectList_Sprite.Add(image);
                 }
             }
+
             SetColor(fromColor);
         }
 
@@ -894,6 +936,7 @@ namespace Tween
         {
             return GetInterp(oldValue, aimValue, currentTime, totalTime);
         }
+
         /// <summary>
         /// 曲线 缓动 插值时间
         /// </summary>
@@ -978,6 +1021,7 @@ namespace Tween
                 case Ease.Default:
                     return curve.Evaluate(current / total) * (aimValue - fromValue) + fromValue;
             }
+
             return 0;
         }
 
@@ -999,29 +1043,31 @@ namespace Tween
                 // Debug.Log(currentPercentage);
                 result = GetInterpPathV3();
             }
+
             return result;
         }
 
         private Vector3 GetInterpPathV3()
         {
-            float t = currentPercentage - pathWeith[pathWeith.Length - 1];
-            if (t >= pathWeith[currentStep])
+            float t = currentPercentage - pathWeight[pathWeight.Length - 1];
+            if (t >= pathWeight[currentStep])
             {
-                pathWeith[pathWeith.Length - 1] += pathWeith[currentStep];
-                t -= pathWeith[currentStep];
+                pathWeight[pathWeight.Length - 1] += pathWeight[currentStep];
+                t -= pathWeight[currentStep];
                 ++currentStep;
             }
-            t /= pathWeith[currentStep];
+
+            t /= pathWeight[currentStep];
             switch (pathType)
             {
-                case PathType.PathBreak:
-                    return Vector3.Lerp(pathPoints[LimitRangeInt(currentStep, pathPoints.Length - 1)],
-                        pathPoints[LimitRangeInt(currentStep + 1, pathPoints.Length - 1)], t); // 线性插值
-                case PathType.PathLinear:
-                    return TweenMath.CatmullRomPoint(pathPoints[LimitRangeInt(currentStep - 1, pathPoints.Length - 1)],
-                        pathPoints[LimitRangeInt(currentStep, pathPoints.Length - 1)],
-                        pathPoints[LimitRangeInt(currentStep + 1, pathPoints.Length - 1)],
-                        pathPoints[LimitRangeInt(currentStep + 2, pathPoints.Length - 1)], t);
+                case PathType.Linear:
+                    return Vector3.Lerp(pathNodes[LimitRangeInt(currentStep, pathNodes.Length - 1)],
+                        pathNodes[LimitRangeInt(currentStep + 1, pathNodes.Length - 1)], t); // 线性插值
+                case PathType.CatmullRom:
+                    return TweenMath.CatmullRomPoint(pathNodes[LimitRangeInt(currentStep - 1, pathNodes.Length - 1)],
+                        pathNodes[LimitRangeInt(currentStep, pathNodes.Length - 1)],
+                        pathNodes[LimitRangeInt(currentStep + 1, pathNodes.Length - 1)],
+                        pathNodes[LimitRangeInt(currentStep + 2, pathNodes.Length - 1)], t);
                 default:
                     return Vector3.zero;
             }

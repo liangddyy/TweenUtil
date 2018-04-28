@@ -2,17 +2,34 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using UnityEditor;
 
-namespace Tween
+namespace TN
 {
     public class TweenPath : MonoBehaviour
     {
-//		[SerializeField]
-//		private PathData _data;
+        private bool dirty;
+        public Color DebugColor = Color.white;
 
-  [HideInInspector] [SerializeField] private List<Vector3> nodes;
+        [HideInInspector] [SerializeField] private GameObject currentGo;
+        [HideInInspector] [SerializeField] private List<Vector3> localNodes;
 
         [HideInInspector] [SerializeField] private bool isClosedLoop;
+
+        [HideInInspector] [SerializeField] private bool applyRootTransform = true;
+
+        public GameObject CurrentGo
+        {
+            get
+            {
+                if (currentGo == null)
+                    currentGo = GetComponent<GameObject>();
+                return currentGo;
+            }
+            set { currentGo = value; }
+        }
 
         public bool IsClosedLoop
         {
@@ -24,11 +41,97 @@ namespace Tween
             }
         }
 
-        private bool dirty;
-//		public PathData Data
-//		{
-//			get { return _data; }
-//		}
+        public bool ApplyRootTransform
+        {
+            get { return applyRootTransform; }
+            set { applyRootTransform = value; /*dirty = true;*/ }
+        }
+
+        public List<Vector3> LocalNodes
+        {
+            get { return localNodes; }
+            set { localNodes = value; }
+        }
+
+        public List<Vector3> Nodes
+        {
+            get
+            {
+                Matrix4x4 mtx = GetCurveMatrix();
+                List<Vector3> list = new List<Vector3>();
+                foreach (var x in localNodes) list.Add(mtx * ToVec4(x));
+                return list;
+            }
+        }
+
+        void OnDrawGizmos() //画线
+        {
+            Handles.color = DebugColor;
+            Matrix4x4 mtx = GetCurveMatrix();
+            Vector3 oldVector3 = Vector3.zero, nowVector3 = Vector3.zero;
+            float part = 20;
+            for (int i = 0; i < localNodes.Count; i++)
+            {
+                if (i != localNodes.Count - 1 || isClosedLoop)
+                {
+                    oldVector3 = TweenMath.CatmullRomPoint(localNodes[LimitRangeInt(i - 1, localNodes.Count - 1)],
+                        localNodes[LimitRangeInt(i, localNodes.Count - 1)],
+                        localNodes[LimitRangeInt(i + 1, localNodes.Count - 1)],
+                        localNodes[LimitRangeInt(i + 2, localNodes.Count - 1)], 0);
+                    oldVector3 = mtx * ToVec4(oldVector3);
+                    for (int j = 1; j <= part; j++)
+                    {
+                        nowVector3 = TweenMath.CatmullRomPoint(localNodes[LimitRangeInt(i - 1, localNodes.Count - 1)],
+                            localNodes[LimitRangeInt(i, localNodes.Count - 1)],
+                            localNodes[LimitRangeInt(i + 1, localNodes.Count - 1)],
+                            localNodes[LimitRangeInt(i + 2, localNodes.Count - 1)], j / part);
+                        nowVector3 = mtx * ToVec4(nowVector3);
+                        Handles.DrawLine(oldVector3, nowVector3);
+                        oldVector3 = nowVector3;
+                    }
+                }
+            }
+        }
+
+        public Vector3 GetVector3(float t)
+        {
+            t = Mathf.Clamp01(t);
+
+
+            return Vector3.one;
+        }
+
+        // 防止越界
+        private int LimitRangeInt(int t, int max, int min = 0)
+        {
+            if (max <= 0 || max < min)
+            {
+                return 0;
+            }
+            else if (t > max)
+            {
+                return isClosedLoop ? LimitRangeInt(t - max - 1, max, min) : max;
+            }
+            else if (t < min)
+            {
+                return isClosedLoop ? LimitRangeInt(max - min + t + 1, max, min) : min;
+            }
+
+            return t;
+        }
+
+        private Vector4 ToVec4(Vector3 v)
+        {
+            return new Vector4(v.x, v.y, v.z, 1);
+        }
+
+        public Matrix4x4 GetCurveMatrix()
+        {
+            if (ApplyRootTransform)
+                return Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
+            else
+                return Matrix4x4.TRS(transform.position, Quaternion.identity, Vector3.one);
+        }
     }
 
     [Serializable]

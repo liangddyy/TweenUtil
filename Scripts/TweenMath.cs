@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEngine;
-namespace Tween
+namespace TN
 {
     public class TweenMath
     {
