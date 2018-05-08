@@ -15,11 +15,11 @@ namespace TN
         private GUIStyle richTextGs;
 
 //        private int simulationIndex;    // 样本进度条 。暂时不做
-        
+
 //        private float simulateDuration;
 //        private float simulateTime;
 //        private DateTime simulateDateTime;
-        
+
         private bool svLockX;
         private bool svLockY;
 
@@ -52,7 +52,8 @@ namespace TN
             serializedObject.FindProperty("applyRootTransform").boolValue = tweenPath.ApplyRootTransform;
             serializedObject.ApplyModifiedProperties();
 
-            tweenPath.CurrentGo = (GameObject) EditorGUILayout.ObjectField("ExampleObj",tweenPath.CurrentGo, typeof(GameObject),true);
+            tweenPath.ExamplePosition = (GameObject) EditorGUILayout.ObjectField("TestPosition",
+                tweenPath.ExamplePosition, typeof(GameObject), true);
             var bigGs = new GUIStyle(GetRichTextGuiStyle());
             bigGs.fontSize = 16;
             if (list == null)
@@ -139,9 +140,13 @@ namespace TN
             list.onAddCallback = (l) =>
             {
                 Undo.RecordObject(curve, "adding node");
+                int indexInsert = l.index >= curve.LocalNodes.Count ? curve.LocalNodes.Count : l.index;
+                var tmp = curve.ExamplePosition == null
+                    ? curve.LocalNodes[indexInsert]
+                    : curve.ExamplePosition.transform.position - curve.transform.position;
 
-                curve.LocalNodes.Add(curve.CurrentGo.transform.position - curve.transform.position);
-                l.index = curve.LocalNodes.Count - 1;
+                curve.LocalNodes.Insert(indexInsert, tmp);
+                l.index = indexInsert +1;
                 scrollPosition = new Vector2(0, float.PositiveInfinity);
             };
             list.onRemoveCallback = (l) =>
@@ -228,7 +233,7 @@ namespace TN
                     Tools.current = Tool.None;
                 DrawNodes(curve, mtx);
             }
-            
+
 //            if (simulationIndex >= 0)
 //            {
 //                var vec = curve.GetVector(simulationIndex / 100f);

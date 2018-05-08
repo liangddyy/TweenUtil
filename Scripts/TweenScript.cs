@@ -6,6 +6,7 @@ using System;
 
 namespace TN
 {
+    [Serializable]
     public class TweenScript : IStackObject
     {
         #region 参数
