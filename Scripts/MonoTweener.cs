@@ -26,7 +26,12 @@ public class MonoTweener : MonoBehaviour
 
     private void Awake()
     {
-        if (AutoPlay)
+        for (int i = 0; i < Tweeners.Count; i++)
+        {
+            tweeners[i].isPause = true;
+            tweeners[i].Init();
+        }
+        if(AutoPlay)
             Play();
     }
 
