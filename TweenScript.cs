@@ -486,10 +486,12 @@ namespace Tween
         /// </summary>
         public void OnInit()
         {
+            
         }
 
         public void OnPop()
         {
+            
         }
 
         /// <summary>
@@ -510,8 +512,19 @@ namespace Tween
             pathType = PathType.Line;
             pathPoints = null;
             currentStep = 0;
-            //            m_floatContral = null;
-            //toTransform = null;
+            // m_floatContral = null;
+            toTransform = null;
+            customMethodV3 = null;
+            customMethodV2 = null;
+            customMethodFloat = null;
+            m_rectRransform = null;
+            m_transform = null;
+            curve = null;
+            pathPoints = null;
+            pathWeith = null;
+            m_oldColor.Clear();
+            animCallBack = null;
+            animParameter = null;
         }
 
         #endregion
