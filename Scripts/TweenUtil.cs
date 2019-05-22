@@ -309,7 +309,7 @@ namespace Tween
             for (int i = 0; i < animList.Count; i++)
             {
                 animList[i].executeUpdate();
-                if (animList[i].isDone == true)
+                if (animList[i].isDone)
                 {
                     TweenScript tweenTmp = animList[i];
                     if (!tweenTmp.AnimReplayLogic())
@@ -319,16 +319,8 @@ namespace Tween
                         StackObjectPool<TweenScript>.PutObject(tweenTmp);
                     }
 
-                    tweenTmp.executeCallBack();
+                    tweenTmp.executeCallBack(); // todo this is bug.
                 }
-            }
-        }
-
-        private void OnGUI()
-        {
-            if (GUILayout.Button("111"))
-            {
-                Debug.Log(animList.Count);
             }
         }
 
@@ -411,46 +403,13 @@ namespace Tween
     }
 
     /// <summary>
-    /// 动画控制类型
-    /// </summary>
-    // public enum AnimParamType
-    // {
-    //     GameObj,
-    //     FromV3,
-    //     FromV2,
-    //     FromFloat,
-    //     FromColor,
-    //     ToV3,
-    //     ToV2,
-    //     ToFloat,
-    //     ToColor,
-    //     DelayTime,
-    //     AnimType,
-    //     Time,
-    //     InteType,
-    //     IsIgnoreTimeScale,
-    //     PathType,
-    //     PathData,
-    //     //        floatControl,
-    //     IsIncludeChild,
-    //     IsLocal,
-    //     RepeatType,
-    //     RepeatCount,
-    //     CustomMethodV3,
-    //     CustomMethodV2,
-    //     CustomMethodFloat,
-    //     Space,
-    //     CallBack,
-    //     CallBackParams
-    // }
-    /// <summary>
     /// 路径类型
     /// </summary>
     public enum PathType
     {
         Line,
-        PathBreak,
-        PathLinear,
+        Linear,
+        CatmullRom,
     }
 
     public enum LoopType

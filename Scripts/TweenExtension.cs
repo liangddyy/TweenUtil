@@ -439,12 +439,12 @@ namespace Tween
             float time = 2,
             float delayTime = 0,
             bool isLocal = false,
-            PathType pathType = PathType.PathLinear)
+            PathType pathType = PathType.CatmullRom)
         {
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             if (pathType == PathType.Line)
             {
-                pathType = PathType.PathLinear;
+                pathType = PathType.CatmullRom;
             }
 
             if (isLocal)
@@ -471,10 +471,8 @@ namespace Tween
                 {
                     realPath[i + 1] = path[i];
                 }
-
-                tweenTmp.pathPoints = realPath;
+                tweenTmp.pathNodes = realPath;
             }
-
             tweenTmp.animGameObject = trans.gameObject;
             tweenTmp.isLocal = isLocal;
             tweenTmp.pathType = pathType;
