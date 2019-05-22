@@ -5,13 +5,16 @@ using System;
 using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
+
 #endif
 namespace Tween
 {
     public class TweenUtil : MonoBehaviour
     {
         #region 静态部分
+
         static TweenUtil instance;
+
         // static AnimParamHash HashTemp = new AnimParamHash(); 
         public static TweenUtil GetInstance()
         {
@@ -33,9 +36,12 @@ namespace Tween
              DontDestroyOnLoad(instance.gameObject);
 #endif
             }
+
             return instance;
         }
+
         #region CustomTween
+
         public static TweenScript CustomTweenFloat(AnimCustomMethodFloat method, float from, float to,
             float time = 0.5f,
             float delayTime = 0,
@@ -56,6 +62,7 @@ namespace Tween
             GetInstance().animList.Add(tweenTmp);
             return tweenTmp;
         }
+
         public static TweenScript CustomTweenVector2(AnimCustomMethodVector2 method, Vector2 from, Vector2 to,
             float time = 0.5f,
             float delayTime = 0,
@@ -76,6 +83,7 @@ namespace Tween
             GetInstance().animList.Add(tweenTmp);
             return tweenTmp;
         }
+
         public static TweenScript CustomTweenVector3(AnimCustomMethodVector3 method, Vector3 from, Vector3 to,
             float time = 0.5f,
             float delayTime = 0,
@@ -96,8 +104,11 @@ namespace Tween
             GetInstance().animList.Add(tweenTmp);
             return tweenTmp;
         }
+
         #endregion
+
         #region ValueTo
+
         /*
         public static TweenScript ValueTo(AnimParamHash l_animHash)
         {
@@ -224,8 +235,11 @@ namespace Tween
             }
         }
  */
+
         #endregion
+
         #region 功能函数
+
         /// <summary>
         /// 停止一个动画
         /// </summary>
@@ -237,9 +251,11 @@ namespace Tween
             {
                 tweenData.executeCallBack();
             }
+
             GetInstance().animList.Remove(tweenData);
             StackObjectPool<TweenScript>.PutObject(tweenData);
         }
+
         public static void FinishAnim(TweenScript tweenData)
         {
             tweenData.currentTime = tweenData.totalTime;
@@ -248,6 +264,7 @@ namespace Tween
             GetInstance().animList.Remove(tweenData);
             StackObjectPool<TweenScript>.PutObject(tweenData);
         }
+
         public static void ClearAllAnim(bool isCallBack = false)
         {
             if (isCallBack)
@@ -264,10 +281,29 @@ namespace Tween
                 GetInstance().animList.Clear();
             }
         }
+
         #endregion
+
         #endregion
+
         #region 实例部分
+
         public List<TweenScript> animList = new List<TweenScript>();
+
+        public void AddTween(TweenScript tweenScript)
+        {
+            // 避免同一物体同一类型同时存在两次.
+            var a = animList.Find(x =>
+                x.animGameObject == tweenScript.animGameObject && x.animType == tweenScript.animType);
+            if (a != null)
+            {
+                animList.Remove(a);
+                StackObjectPool<TweenScript>.PutObject(a);
+            }
+
+            animList.Add(tweenScript);
+        }
+
         public void Update()
         {
             for (int i = 0; i < animList.Count; i++)
@@ -282,17 +318,33 @@ namespace Tween
                         i--;
                         StackObjectPool<TweenScript>.PutObject(tweenTmp);
                     }
+
                     tweenTmp.executeCallBack();
                 }
             }
         }
+
+        private void OnGUI()
+        {
+            if (GUILayout.Button("111"))
+            {
+                Debug.Log(animList.Count);
+            }
+        }
+
         #endregion
     }
+
     #region 枚举与代理声明
+
     public delegate void AnimCallBack(params object[] arg);
+
     public delegate void AnimCustomMethodVector3(Vector3 data);
+
     public delegate void AnimCustomMethodVector2(Vector2 data);
+
     public delegate void AnimCustomMethodFloat(float data);
+
     /// <summary>
     /// 动画类型
     /// </summary>
@@ -303,9 +355,9 @@ namespace Tween
         LocalScale,
         LocalRotate,
         Rotate,
-        Color,  // SpriteRenderer.Color
+        Color, // SpriteRenderer.Color
         Alpha,
-        UGUI_Color,     // Image.Color  Text.Color
+        UGUI_Color, // Image.Color  Text.Color
         UGUI_Alpha,
         UGUI_AnchoredPosition,
         UGUI_AnchoredRotate,
@@ -317,6 +369,7 @@ namespace Tween
         Custom_Float,
         Blink,
     }
+
     /// <summary>
     /// 插值算法类型
     /// </summary>
@@ -356,6 +409,7 @@ namespace Tween
         InOutBounce,
         OutInBounce,
     }
+
     /// <summary>
     /// 动画控制类型
     /// </summary>
@@ -395,14 +449,16 @@ namespace Tween
     public enum PathType
     {
         Line,
-        PathBreak, 
-        PathLinear, 
+        PathBreak,
+        PathLinear,
     }
+
     public enum LoopType
     {
         Once,
         Loop,
         PingPang,
     }
+
     #endregion
 }

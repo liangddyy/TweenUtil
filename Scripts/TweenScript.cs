@@ -82,7 +82,7 @@ namespace Tween
         #region 非必须初始化变量/动画循环/延迟/缓动等。
 
         private bool isRecyclable = true;
-        private object[] animParameter;        //动画回调参数
+        private object[] animParameter; //动画回调参数
         private AnimCallBack animCallBack;
         private float delayTime = 0;
         private bool isIgnoreTimeScale = false;
@@ -150,6 +150,7 @@ namespace Tween
             {
                 return;
             }
+
             if (delayTime <= 0)
             {
                 if (isIgnoreTimeScale)
@@ -172,11 +173,13 @@ namespace Tween
                     delayTime -= Time.deltaTime;
                 }
             }
+
             if (currentTime >= totalTime)
             {
                 currentTime = totalTime;
                 isDone = true;
             }
+
             try
             {
                 switch (animType)
@@ -305,6 +308,7 @@ namespace Tween
                     PingpangExchange();
                     break;
             }
+
             if (loopCount == -1)
             {
                 return true;
@@ -334,6 +338,7 @@ namespace Tween
             {
                 return;
             }
+
             currentStep = 0;
             if (isExchange)
             {
@@ -341,6 +346,7 @@ namespace Tween
                 InitPathWeight();
                 return;
             }
+
             if (pathWeith.Length > 1)
             {
                 // 重置已插值量
@@ -427,6 +433,7 @@ namespace Tween
                     TransfromInit();
                     break;
             }
+
             InitPathWeight();
         }
 
@@ -455,14 +462,18 @@ namespace Tween
                         pathWeith[i] += Vector3.Distance(oldVector3, nowVector3);
                         oldVector3 = nowVector3;
                     }
+
                     sum += pathWeith[i];
                 }
+
                 for (int i = 0; i < pathWeith.Length - 1; i++)
                 {
                     pathWeith[i] = pathWeith[i] / sum; // 插值百分比
                 }
+
                 pathWeith[pathWeith.Length - 1] = 0; //保存已插值完成的百分比
             }
+
             if (pathType == PathType.PathBreak)
             {
                 // 根据距离分配时间
@@ -473,10 +484,12 @@ namespace Tween
                     pathWeith[i] = Vector3.Distance(pathPoints[i], pathPoints[i + 1]);
                     sum += pathWeith[i];
                 }
+
                 for (int i = 0; i < pathWeith.Length - 1; i++)
                 {
                     pathWeith[i] = pathWeith[i] / sum; // 插值百分比
                 }
+
                 pathWeith[pathWeith.Length - 1] = 0; //已插值完成的百分比
             }
         }
@@ -486,12 +499,10 @@ namespace Tween
         /// </summary>
         public void OnInit()
         {
-            
         }
 
         public void OnPop()
         {
-            
         }
 
         /// <summary>
@@ -577,6 +588,7 @@ namespace Tween
                         m_oldColor.Add(images[i].color);
                     }
                 }
+
                 Text[] texts = animGameObject.GetComponentsInChildren<Text>();
                 for (int i = 0; i < texts.Length; i++)
                 {
@@ -593,12 +605,14 @@ namespace Tween
                     m_animObjectList_Image.Add(image);
                     m_oldColor.Add(image.color);
                 }
+
                 if (text != null)
                 {
                     m_animObjectList_Text.Add(text);
                     m_oldColor.Add(text.color);
                 }
             }
+
             SetUGUIAlpha(fromFloat);
         }
 
@@ -621,6 +635,7 @@ namespace Tween
                 m_animObjectList_Image[i].color = newColor;
                 index++;
             }
+
             for (int i = 0; i < m_animObjectList_Text.Count; i++)
             {
                 newColor = m_oldColor[index];
@@ -657,6 +672,7 @@ namespace Tween
                         //Debug.LogError("name:" + images[i].gameObject.name);
                     }
                 }
+
                 Text[] texts = animGameObject.GetComponentsInChildren<Text>();
                 for (int i = 0; i < texts.Length; i++)
                 {
@@ -671,11 +687,13 @@ namespace Tween
                 {
                     m_animObjectList_Image.Add(image);
                 }
+
                 if (text != null)
                 {
                     m_animObjectList_Text.Add(text);
                 }
             }
+
             SetUGUIColor(fromColor);
         }
 
@@ -685,6 +703,7 @@ namespace Tween
             {
                 m_animObjectList_Image[i].color = color;
             }
+
             for (int i = 0; i < m_animObjectList_Text.Count; i++)
             {
                 m_animObjectList_Text[i].color = color;
@@ -704,6 +723,7 @@ namespace Tween
                 Debug.LogError(m_transform.name + "缺少RectTransform组件，不能进行sizeDelta变换！！");
                 return;
             }
+
             m_rectRransform.sizeDelta = GetInterpV3(fromV2, toV2);
         }
 
@@ -809,6 +829,7 @@ namespace Tween
                     m_oldColor.Add(image.color);
                 }
             }
+
             SetAlpha(fromFloat);
         }
 
@@ -855,6 +876,7 @@ namespace Tween
                     m_animObjectList_Sprite.Add(image);
                 }
             }
+
             SetColor(fromColor);
         }
 
@@ -907,6 +929,7 @@ namespace Tween
         {
             return GetInterp(oldValue, aimValue, currentTime, totalTime);
         }
+
         /// <summary>
         /// 曲线 缓动 插值时间
         /// </summary>
@@ -991,6 +1014,7 @@ namespace Tween
                 case Ease.Default:
                     return curve.Evaluate(current / total) * (aimValue - fromValue) + fromValue;
             }
+
             return 0;
         }
 
@@ -1012,6 +1036,7 @@ namespace Tween
                 // Debug.Log(currentPercentage);
                 result = GetInterpPathV3();
             }
+
             return result;
         }
 
@@ -1024,6 +1049,7 @@ namespace Tween
                 t -= pathWeith[currentStep];
                 ++currentStep;
             }
+
             t /= pathWeith[currentStep];
             switch (pathType)
             {

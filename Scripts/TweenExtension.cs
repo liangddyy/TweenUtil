@@ -80,6 +80,7 @@ namespace Tween
                         TweenScript dataTmp = TweenUtil.GetInstance().animList[i];
                         dataTmp.executeCallBack();
                     }
+
                     TweenScript tweenData = TweenUtil.GetInstance().animList[i];
                     TweenUtil.GetInstance().animList.RemoveAt(i);
                     i--;
@@ -109,7 +110,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -128,7 +129,7 @@ namespace Tween
             // 
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -153,6 +154,7 @@ namespace Tween
                 fromTmp = from ?? trans.eulerAngles;
                 animType = AnimType.Rotate;
             }
+
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.animGameObject = trans.gameObject;
             tweenTmp.animType = animType;
@@ -163,7 +165,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -185,7 +187,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -208,7 +210,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -227,7 +229,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -251,6 +253,7 @@ namespace Tween
                     fromTmp = from ?? rectTrans.GetComponent<Graphic>().color;
                 }
             }
+
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.animGameObject = rectTrans.gameObject;
             tweenTmp.animType = AnimType.UGUI_Color;
@@ -261,7 +264,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -282,6 +285,7 @@ namespace Tween
                     fromTmp = from ?? rectTrans.GetComponent<Graphic>().color.a;
                 }
             }
+
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.animGameObject = rectTrans.gameObject;
             tweenTmp.animType = AnimType.UGUI_Alpha;
@@ -291,7 +295,7 @@ namespace Tween
             tweenTmp.SetDelay(delayTime);
             tweenTmp.totalTime = time;
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -317,7 +321,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -335,7 +339,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -355,7 +359,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -374,7 +378,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -400,7 +404,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -423,7 +427,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
@@ -442,6 +446,7 @@ namespace Tween
             {
                 pathType = PathType.PathLinear;
             }
+
             if (isLocal)
             {
                 tweenTmp.animType = AnimType.LocalPosition; // 动画类型
@@ -452,6 +457,7 @@ namespace Tween
                 tweenTmp.animType = AnimType.Position;
                 tweenTmp.fromV3 = from ?? trans.transform.position;
             }
+
             if (path.Length < 2)
             {
                 pathType = PathType.Line; //小于1个点。
@@ -465,8 +471,10 @@ namespace Tween
                 {
                     realPath[i + 1] = path[i];
                 }
+
                 tweenTmp.pathPoints = realPath;
             }
+
             tweenTmp.animGameObject = trans.gameObject;
             tweenTmp.isLocal = isLocal;
             tweenTmp.pathType = pathType;
@@ -474,7 +482,7 @@ namespace Tween
             tweenTmp.totalTime = time;
 
             tweenTmp.Init();
-            TweenUtil.GetInstance().animList.Add(tweenTmp);
+            TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
