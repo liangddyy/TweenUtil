@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace TN
+namespace Tween
 {
     [CustomEditor(typeof(MonoTweener))]
     public class MonoTweenerEditor : Editor

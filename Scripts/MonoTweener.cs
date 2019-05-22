@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using TN;
+using Tween;
 
 public class MonoTweener : MonoBehaviour
 {

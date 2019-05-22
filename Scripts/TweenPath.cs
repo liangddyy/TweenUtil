@@ -31,6 +31,7 @@ namespace Tween
             set { curExample = value; }
         }
 
+        [SerializeField]
         public bool IsClosedLoop
         {
             get { return isClosedLoop; }

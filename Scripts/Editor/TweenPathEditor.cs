@@ -145,6 +145,7 @@ namespace Tween
                     ? curve.LocalNodes[indexInsert]
                     : curve.ExamplePosition.transform.position - curve.transform.position;
 
+                if (indexInsert < 0) indexInsert = 0;
                 curve.LocalNodes.Insert(indexInsert, tmp);
                 l.index = indexInsert +1;
                 scrollPosition = new Vector2(0, float.PositiveInfinity);
