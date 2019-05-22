@@ -324,14 +324,6 @@ namespace Tween
             }
         }
 
-        private void OnGUI()
-        {
-            if (GUILayout.Button("111"))
-            {
-                Debug.Log(animList.Count);
-            }
-        }
-
         #endregion
     }
 
