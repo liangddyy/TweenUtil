@@ -13,22 +13,22 @@ namespace Tween
         private bool dirty;
         public Color DebugColor = Color.white;
 
-        [HideInInspector] [SerializeField] private GameObject currentGo;
+        [HideInInspector] [SerializeField] private GameObject curExample;
         [HideInInspector] [SerializeField] private List<Vector3> localNodes;
 
         [HideInInspector] [SerializeField] private bool isClosedLoop;
 
         [HideInInspector] [SerializeField] private bool applyRootTransform = true;
 
-        public GameObject CurrentGo
+        public GameObject ExamplePosition
         {
             get
             {
-                if (currentGo == null)
-                    currentGo = GetComponent<GameObject>();
-                return currentGo;
+                if (curExample == null)
+                    curExample = GetComponent<GameObject>();
+                return curExample;
             }
-            set { currentGo = value; }
+            set { curExample = value; }
         }
 
         public bool IsClosedLoop
@@ -64,6 +64,16 @@ namespace Tween
             }
         }
 
+        public Vector3 GetNode(int index)
+        {
+            if (index < 0)
+                index = 0;
+            if (index >= localNodes.Count - 1)
+                index = localNodes.Count - 1;
+            Matrix4x4 mtx = GetCurveMatrix();
+            return mtx * ToVec4(localNodes[index]);
+        }
+
         void OnDrawGizmos() //画线
         {
             Handles.color = DebugColor;
@@ -91,14 +101,6 @@ namespace Tween
                     }
                 }
             }
-        }
-
-        public Vector3 GetVector3(float t)
-        {
-            t = Mathf.Clamp01(t);
-
-
-            return Vector3.one;
         }
 
         // 防止越界
