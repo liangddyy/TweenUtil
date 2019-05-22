@@ -2,9 +2,9 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace Tween
 {
@@ -76,6 +76,7 @@ namespace Tween
 
         void OnDrawGizmos() //画线
         {
+#if UNITY_EDITOR
             Handles.color = DebugColor;
             Matrix4x4 mtx = GetCurveMatrix();
             Vector3 oldVector3 = Vector3.zero, nowVector3 = Vector3.zero;
@@ -101,6 +102,7 @@ namespace Tween
                     }
                 }
             }
+#endif
         }
 
         // 防止越界
