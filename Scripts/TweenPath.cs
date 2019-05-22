@@ -6,7 +6,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using UnityEditor;
 
-namespace TN
+namespace Tween
 {
     public class TweenPath : MonoBehaviour
     {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-namespace TN
+namespace Tween
 {
     #region StackObj
 

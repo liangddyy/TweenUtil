@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
 
-namespace TN
+namespace Tween
 {
     [CustomEditor(typeof(TweenPath))]
     public class TweenPathEditor : Editor
