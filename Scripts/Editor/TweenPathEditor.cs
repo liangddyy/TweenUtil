@@ -63,7 +63,7 @@ namespace Tween
 
             #region Curve Nodes
 
-            GUILayout.Label("节点Nodes", bigGs);
+            GUILayout.Label("nodes", bigGs);
             var listHeight = Mathf.Min(200, list.GetHeight());
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Height(listHeight));
             list.DoLayoutList();
@@ -89,7 +89,7 @@ namespace Tween
 
             #endregion
 
-            GUILayout.Label("节点编辑模式", bigGs);
+            GUILayout.Label("edit mode", bigGs);
             editMode = (emEditMode) GUILayout.Toolbar((int) editMode,
                 new[] {emEditMode.Root.ToString(), emEditMode.Single.ToString(), emEditMode.ALL.ToString()},
                 "button");
@@ -147,7 +147,7 @@ namespace Tween
 
                 if (indexInsert < 0) indexInsert = 0;
                 curve.LocalNodes.Insert(indexInsert, tmp);
-                l.index = indexInsert +1;
+                l.index = indexInsert + 1;
                 scrollPosition = new Vector2(0, float.PositiveInfinity);
             };
             list.onRemoveCallback = (l) =>

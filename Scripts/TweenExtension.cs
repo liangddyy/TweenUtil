@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 
 namespace Tween
@@ -9,8 +8,6 @@ namespace Tween
     /// </summary>
     public static class TweenExtension
     {
-        #region 播放控制/暂停/重置/反转等
-
         /// <summary>
         /// 对象身上的所有动画
         /// </summary>
@@ -89,22 +86,18 @@ namespace Tween
             }
         }
 
-        #endregion
-
-        #region TweenMove
-
         /// <summary>
         /// 动画移动到某位置
         /// </summary>
         /// <returns></returns>
-        public static TweenScript TnLocalMove(this Transform trans, Vector3? from, Vector3 to, float time = 0.5f,
+        public static TweenScript TnLocalMove(this Transform trans, Vector3 to, float time = 0.5f,
             float delayTime = 0)
         {
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.isLocal = true;
             tweenTmp.animGameObject = trans.gameObject;
-            tweenTmp.animType = AnimType.LocalPosition;
-            tweenTmp.fromV3 = from ?? trans.localPosition;
+            tweenTmp.isLocal = true;
+            tweenTmp.fromV3 = trans.localPosition;
             tweenTmp.toV3 = to;
             tweenTmp.SetDelay(delayTime);
             tweenTmp.totalTime = time;
@@ -114,51 +107,35 @@ namespace Tween
             return tweenTmp;
         }
 
-        public static TweenScript TnMove(this Transform trans, Vector3? from, Vector3 to, float time = 0.5f,
+        public static TweenScript TnMove(this Transform trans, Vector3 to, float time = 0.5f,
             float delayTime = 0, Transform toTransform = null)
         {
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.isLocal = true;
             tweenTmp.animGameObject = trans.gameObject;
             tweenTmp.animType = AnimType.Position;
-            tweenTmp.fromV3 = from ?? trans.position;
+            tweenTmp.fromV3 = trans.position;
             tweenTmp.toV3 = to;
             tweenTmp.toTransform = toTransform;
             tweenTmp.SetDelay(delayTime);
             tweenTmp.totalTime = time;
-            // 
 
             tweenTmp.Init();
             TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
 
-        #endregion
-
-        #region TweenRotate
-
-        public static TweenScript TnRotate(this Transform trans, Vector3? from, Vector3 to,
+        public static TweenScript TnRotate(this Transform trans, Vector3 to,
             float time = 0.5f,
             float delayTime = 0,
             bool isLocal = true)
         {
-            AnimType animType;
-            Vector3 fromTmp;
-            if (isLocal)
-            {
-                fromTmp = from ?? trans.localEulerAngles;
-                animType = AnimType.LocalRotate;
-            }
-            else
-            {
-                fromTmp = from ?? trans.eulerAngles;
-                animType = AnimType.Rotate;
-            }
 
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.animGameObject = trans.gameObject;
-            tweenTmp.animType = animType;
-            tweenTmp.fromV3 = fromTmp;
+            tweenTmp.animType = AnimType.Rotate;
+            tweenTmp.isLocal = isLocal;
+            tweenTmp.fromV3 = isLocal ? trans.localEulerAngles : trans.eulerAngles;
             tweenTmp.toV3 = to;
             tweenTmp.isLocal = isLocal;
             tweenTmp.SetDelay(delayTime);
@@ -169,18 +146,14 @@ namespace Tween
             return tweenTmp;
         }
 
-        #endregion
-
-        #region TweenScale
-
-        public static TweenScript TnScale(this Transform trans, Vector3? from, Vector3 to,
+        public static TweenScript TnScale(this Transform trans, Vector3 to,
             float time = 0.5f,
             float delayTime = 0)
         {
-            Vector3 fromTmp = from ?? trans.localScale;
+            Vector3 fromTmp = trans.localScale;
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.animGameObject = trans.gameObject;
-            tweenTmp.animType = AnimType.LocalScale;
+            tweenTmp.animType = AnimType.Scale;
             tweenTmp.fromV3 = fromTmp;
             tweenTmp.toV3 = to;
             tweenTmp.SetDelay(delayTime);
@@ -190,10 +163,6 @@ namespace Tween
             TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
-
-        #endregion
-
-        #region TweenColor
 
         public static TweenScript TnColorTo(this Transform trans, Color from, Color to,
             float time = 0.5f,
@@ -233,30 +202,23 @@ namespace Tween
             return tweenTmp;
         }
 
-        #endregion
-
-        #region UGUI Color
-
         /// <summary>
         /// 动画过度到目标颜色
         /// </summary>
-        public static TweenScript TnUguiColor(this RectTransform rectTrans, Color? from, Color to,
+        public static TweenScript TnUguiColor(this RectTransform rectTrans, Color to,
             float time = 0.5f,
             float delayTime = 0,
             bool isChild = false)
         {
-            Color fromTmp = from ?? Color.white;
-            if (from == null)
+            Color fromTmp = Color.white;
+            if (rectTrans.GetComponent<Graphic>() != null)
             {
-                if (rectTrans.GetComponent<Graphic>() != null)
-                {
-                    fromTmp = from ?? rectTrans.GetComponent<Graphic>().color;
-                }
+                fromTmp = rectTrans.GetComponent<Graphic>().color;
             }
 
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.animGameObject = rectTrans.gameObject;
-            tweenTmp.animType = AnimType.UGUI_Color;
+            tweenTmp.animType = AnimType.UiColor;
             tweenTmp.fromColor = fromTmp;
             tweenTmp.toColor = to;
             tweenTmp.isChild = isChild;
@@ -268,27 +230,20 @@ namespace Tween
             return tweenTmp;
         }
 
-        #endregion
-
-        #region UGUI Alpha        
-
-        public static TweenScript TnUguiAlpha(this RectTransform rectTrans, float? from, float to,
+        public static TweenScript TnUguiAlpha(this RectTransform rectTrans, float to,
             float time,
             float delayTime = 0,
             bool isChild = false)
         {
-            float fromTmp = from ?? 1;
-            if (from == null)
+            float fromTmp = 1;
+            if (rectTrans.GetComponent<Graphic>() != null)
             {
-                if (rectTrans.GetComponent<Graphic>() != null)
-                {
-                    fromTmp = from ?? rectTrans.GetComponent<Graphic>().color.a;
-                }
+                fromTmp = rectTrans.GetComponent<Graphic>().color.a;
             }
 
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.animGameObject = rectTrans.gameObject;
-            tweenTmp.animType = AnimType.UGUI_Alpha;
+            tweenTmp.animType = AnimType.UiAlpha;
             tweenTmp.fromFloat = fromTmp;
             tweenTmp.toFloat = to;
             tweenTmp.isChild = isChild;
@@ -299,10 +254,6 @@ namespace Tween
             return tweenTmp;
         }
 
-        #endregion
-
-        #region UGUI Move
-
         /// <summary>
         /// UGUI Move RectTransform .anchoredPosition3D
         /// </summary>
@@ -312,9 +263,9 @@ namespace Tween
         {
             Vector3 fromTmp = rectTrans.GetComponent<RectTransform>().anchoredPosition;
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
-            ;
+
             tweenTmp.animGameObject = rectTrans.gameObject;
-            tweenTmp.animType = AnimType.UGUI_AnchoredPosition;
+            tweenTmp.animType = AnimType.UiAnchoredPosition;
             tweenTmp.fromV3 = fromTmp;
             tweenTmp.toV3 = to;
             tweenTmp.SetDelay(delayTime);
@@ -324,80 +275,19 @@ namespace Tween
             TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
-
-        public static TweenScript TnUguiRotate(this RectTransform rectTrans, Vector3 to,
-            float time = 0.5f,
-            float delayTime = 0)
-        {
-            Vector3 fromTmp = rectTrans.GetComponent<RectTransform>().eulerAngles;
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
-            tweenTmp.animGameObject = rectTrans.gameObject;
-            tweenTmp.animType = AnimType.UGUI_AnchoredRotate;
-            tweenTmp.fromV3 = fromTmp;
-            tweenTmp.toV3 = to;
-            tweenTmp.SetDelay(delayTime);
-            tweenTmp.totalTime = time;
-
-            tweenTmp.Init();
-            TweenUtil.GetInstance().AddTween(tweenTmp);
-            return tweenTmp;
-        }
-
-        public static TweenScript TnUguiLocalRotate(this RectTransform rectTrans, Vector3 to,
-            float time = 0.5f,
-            float delayTime = 0
-        )
-        {
-            Vector3 fromTmp = rectTrans.GetComponent<RectTransform>().localEulerAngles;
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
-            ;
-            tweenTmp.animGameObject = rectTrans.gameObject;
-            tweenTmp.animType = AnimType.UGUI_AnchoredLocalRotate;
-            tweenTmp.fromV3 = fromTmp;
-            tweenTmp.toV3 = to;
-            tweenTmp.SetDelay(delayTime);
-            tweenTmp.totalTime = time;
-
-            tweenTmp.Init();
-            TweenUtil.GetInstance().AddTween(tweenTmp);
-            return tweenTmp;
-        }
-
-        public static TweenScript TnUguiScale(this RectTransform rectTrans, Vector3 to,
-            float time = 0.5f,
-            float delayTime = 0)
-        {
-            Vector3 fromTmp = rectTrans.GetComponent<RectTransform>().localScale;
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
-            ;
-            tweenTmp.animGameObject = rectTrans.gameObject;
-            tweenTmp.animType = AnimType.UGUI_AnchoredScale;
-            tweenTmp.fromV3 = fromTmp;
-            tweenTmp.toV3 = to;
-            tweenTmp.SetDelay(delayTime);
-            tweenTmp.totalTime = time;
-
-            tweenTmp.Init();
-            TweenUtil.GetInstance().AddTween(tweenTmp);
-            return tweenTmp;
-        }
-
-        #endregion
-
-        #region UGUI_Size /width/height
 
         /// <summary>
         /// UGUI RectTransfrom 放大缩小
         /// width/height
         /// </summary>
-        public static TweenScript TnUguiSize(this RectTransform rectTrans, Vector2? from, Vector2 to,
+        public static TweenScript TnUguiSize(this RectTransform rectTrans, Vector2 to,
             float time = 0.5f,
             float delayTime = 0)
         {
-            Vector2 fromTmp = from ?? rectTrans.GetComponent<RectTransform>().sizeDelta;
+            Vector2 fromTmp = rectTrans.GetComponent<RectTransform>().sizeDelta;
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.animGameObject = rectTrans.gameObject;
-            tweenTmp.animType = AnimType.UGUI_Size;
+            tweenTmp.animType = AnimType.UiSize;
             tweenTmp.fromV2 = fromTmp;
             tweenTmp.toV2 = to;
             tweenTmp.SetDelay(delayTime);
@@ -407,10 +297,6 @@ namespace Tween
             TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
-
-        #endregion
-
-        #region Display and Hide
 
         /// <summary>
         /// 隐藏/显示
@@ -431,11 +317,7 @@ namespace Tween
             return tweenTmp;
         }
 
-        #endregion
-
-        #region TweenPathMove
-
-        public static TweenScript TnPathMove(this Transform trans, Vector3? from, Vector3[] path,
+        public static TweenScript TnPathMove(this Transform trans, Vector3[] path,
             float time = 2,
             float delayTime = 0,
             bool isLocal = false,
@@ -447,15 +329,14 @@ namespace Tween
                 pathType = PathType.CatmullRom;
             }
 
+            tweenTmp.animType = AnimType.Position;
             if (isLocal)
             {
-                tweenTmp.animType = AnimType.LocalPosition; // 动画类型
-                tweenTmp.fromV3 = from ?? trans.transform.localPosition;
+                tweenTmp.fromV3 = trans.transform.localPosition;
             }
             else
             {
-                tweenTmp.animType = AnimType.Position;
-                tweenTmp.fromV3 = from ?? trans.transform.position;
+                tweenTmp.fromV3 = trans.transform.position;
             }
 
             if (path.Length < 2)
@@ -471,8 +352,10 @@ namespace Tween
                 {
                     realPath[i + 1] = path[i];
                 }
+
                 tweenTmp.pathNodes = realPath;
             }
+
             tweenTmp.animGameObject = trans.gameObject;
             tweenTmp.isLocal = isLocal;
             tweenTmp.pathType = pathType;
@@ -483,7 +366,5 @@ namespace Tween
             TweenUtil.GetInstance().AddTween(tweenTmp);
             return tweenTmp;
         }
-
-        #endregion
     }
 }

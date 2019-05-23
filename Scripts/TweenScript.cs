@@ -6,10 +6,17 @@ using System;
 
 namespace Tween
 {
+    [System.Serializable]
     public class TweenScript : IStackObject
     {
         #region 参数
-
+        
+//        public bool _isSelf;
+        public AnimationCurve _curve;
+//        public float _minAnimationTime;
+//        public float _maxAnimationTime;
+        
+        
         //基本变量
         public GameObject animGameObject;
 
@@ -19,7 +26,6 @@ namespace Tween
         public float currentTime = 0;
         public float totalTime = 0;
         private float currentPercentage; // 可不用初始化或重置
-
 
         //V3
         public Vector3 fromV3;
@@ -52,14 +58,14 @@ namespace Tween
         float blinkCurrentTime = 0;
 
         //其他设置
-        public bool isChild = false;
+        public bool isChild;
 
-        public bool isLocal = false;
+        public bool isLocal;
 
-        public bool isPause = false;
+        public bool isPause;
 
         //路径
-        public Vector3[] pathNodes = null; //路径
+        public Vector3[] pathNodes; //路径
 
         private float[] pathWeight; // 路径的权重
 
@@ -75,7 +81,7 @@ namespace Tween
         //缓存变量
         RectTransform m_rectRransform;
 
-        Transform m_transform;
+        public Transform m_transform;
 
         #endregion
 
@@ -87,10 +93,12 @@ namespace Tween
         private bool isExcutedCallback;
         private float delayTime = 0;
         private bool isIgnoreTimeScale = false;
+        
+        [SerializeField]
         private Ease easeType = Ease.Linear;
         private int loopCount = -1; // 动画重复次数
         private LoopType loopType = LoopType.Once;
-        private AnimationCurve curve;
+        private AnimationCurve curve = new AnimationCurve();
         
         /// <summary>
         /// </summary>
@@ -182,42 +190,32 @@ namespace Tween
                 isDone = true;
             }
 
-//            try
+            Execute();
+        }
+            
+        public void Execute()
+        {
+            //            try
 //            {
             switch (animType)
             {
-                case AnimType.UGUI_Color:
+                case AnimType.UiColor:
                     UguiColor();
                     break;
-                case AnimType.UGUI_Alpha:
+                case AnimType.UiAlpha:
                     UguiAlpha();
                     break;
-                case AnimType.UGUI_AnchoredPosition:
+                case AnimType.UiAnchoredPosition:
                     UguiPosition();
                     break;
-                case AnimType.UGUI_AnchoredRotate:
-                    UguiRotate();
-                    break;
-                case AnimType.UGUI_AnchoredLocalRotate:
-                    UguiRotate();
-                    break;
-                case AnimType.UGUI_AnchoredScale:
-                    UguiScale();
-                    break;
-                case AnimType.UGUI_Size:
+                case AnimType.UiSize:
                     SizeDelta();
                     break;
                 case AnimType.Position:
                     Position();
                     break;
-                case AnimType.LocalPosition:
-                    LocalPosition();
-                    break;
-                case AnimType.LocalScale:
-                    LocalScale();
-                    break;
-                case AnimType.LocalRotate:
-                    LocalRotate();
+                case AnimType.Scale:
+                    Scale();
                     break;
                 case AnimType.Rotate:
                     Rotate();
@@ -228,13 +226,13 @@ namespace Tween
                 case AnimType.Alpha:
                     UpdateAlpha();
                     break;
-                case AnimType.Custom_Vector3:
+                case AnimType.CustomVector3:
                     CustomMethodVector3();
                     break;
-                case AnimType.Custom_Vector2:
+                case AnimType.CustomVector2:
                     CustomMethodVector2();
                     break;
-                case AnimType.Custom_Float:
+                case AnimType.CustomFloat:
                     CustomMethodFloat();
                     break;
                 case AnimType.Blink:
@@ -378,7 +376,7 @@ namespace Tween
 
         public void ExchangeColor()
         {
-            if (animType == AnimType.Color || animType == AnimType.UGUI_Color)
+            if (animType == AnimType.Color || animType == AnimType.UiColor)
             {
                 // Debug.Log("exchangge");
                 Color colorTemp = fromColor;
@@ -406,19 +404,14 @@ namespace Tween
             {
                 switch (animType)
                 {
-                    case AnimType.UGUI_Color:
+                    case AnimType.UiColor:
                         UguiColorInit(isChild);
                         break;
-                    case AnimType.UGUI_Alpha:
+                    case AnimType.UiAlpha:
                         UguiAlphaInit(isChild);
                         break;
-                    case AnimType.UGUI_AnchoredPosition:
-                    case AnimType.UGUI_AnchoredRotate:
-                    case AnimType.UGUI_AnchoredLocalRotate:
-                    case AnimType.UGUI_AnchoredScale:
-                        UguiAnchoredInit();
-                        break;
-                    case AnimType.UGUI_Size:
+                    case AnimType.UiAnchoredPosition:
+                    case AnimType.UiSize:
                         UguiAnchoredInit();
                         break;
                     case AnimType.Color:
@@ -428,17 +421,7 @@ namespace Tween
                         AlphaInit(isChild);
                         break;
                     case AnimType.Position:
-                        TransfromInit();
-                        break;
-                    case AnimType.LocalPosition:
-                        TransfromInit();
-                        break;
-                    case AnimType.LocalScale:
-                        TransfromInit();
-                        break;
-                    case AnimType.LocalRotate:
-                        TransfromInit();
-                        break;
+                    case AnimType.Scale:
                     case AnimType.Rotate:
                         TransfromInit();
                         break;
@@ -748,21 +731,6 @@ namespace Tween
             m_rectRransform.anchoredPosition3D = GetInterpV3(fromV3, toV3);
         }
 
-        void UguiRotate()
-        {
-            m_rectRransform.eulerAngles = GetInterpV3(fromV3, toV3);
-        }
-
-        void UguiLocalRotate()
-        {
-            m_rectRransform.localEulerAngles = GetInterpV3(fromV3, toV3);
-        }
-
-        void UguiScale()
-        {
-            m_rectRransform.localScale = GetInterpV3(fromV3, toV3);
-        }
-
         #endregion
 
         #endregion
@@ -776,32 +744,36 @@ namespace Tween
 
         void Position()
         {
-            if (toTransform != null)
+            if (isLocal)
             {
-                m_transform.position = GetInterpV3(fromV3, toTransform.position);
+                m_transform.localPosition = GetInterpV3(fromV3, toV3);
             }
             else
             {
-                m_transform.position = GetInterpV3(fromV3, toV3);
+                if (toTransform != null)
+                {
+                    m_transform.position = GetInterpV3(fromV3, toTransform.position);
+                }
+                else
+                {
+                    m_transform.position = GetInterpV3(fromV3, toV3);
+                }
             }
-        }
-
-        void LocalPosition()
-        {
-            m_transform.localPosition = GetInterpV3(fromV3, toV3);
-        }
-
-        void LocalRotate()
-        {
-            m_transform.localEulerAngles = GetInterpV3(fromV3, toV3);
         }
 
         void Rotate()
         {
-            m_transform.eulerAngles = GetInterpV3(fromV3, toV3);
+            if (isLocal)
+            {
+                m_transform.localEulerAngles = GetInterpV3(fromV3, toV3);
+            }
+            else
+            {
+                m_transform.eulerAngles = GetInterpV3(fromV3, toV3);
+            }
         }
 
-        void LocalScale()
+        void Scale()
         {
             m_transform.localScale = GetInterpV3(fromV3, toV3);
         }
@@ -954,9 +926,6 @@ namespace Tween
         {
             switch (easeType)
             {
-                // 线性
-                case Ease.Linear:
-                    return Mathf.Lerp(fromValue, aimValue, current / total);
                 case Ease.InBack:
                     return TweenMath.InBack(fromValue, aimValue, current, total);
                 case Ease.OutBack:
@@ -1017,12 +986,12 @@ namespace Tween
                     return TweenMath.InOutBounce(fromValue, aimValue, current, total);
                 case Ease.OutInBounce:
                     return TweenMath.OutInBounce(fromValue, aimValue, current, total);
-                // animationcurve
                 case Ease.Default:
                     return curve.Evaluate(current / total) * (aimValue - fromValue) + fromValue;
+                // 线性
+                default:
+                    return Mathf.Lerp(fromValue, aimValue, current / total);
             }
-
-            return 0;
         }
 
         Vector3 GetInterpV3(Vector3 oldValue, Vector3 aimValue)
@@ -1073,7 +1042,6 @@ namespace Tween
             }
         }
 
-        // 防止越界
         private int LimitRangeInt(int t, int max, int min = 0)
         {
             if (t < 0 | max <= 0)
