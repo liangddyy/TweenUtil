@@ -10,56 +10,85 @@ namespace Tween
     public class TweenScript : IStackObject
     {
         #region 参数
-        
-//        public bool _isSelf;
-        public AnimationCurve _curve;
-//        public float _minAnimationTime;
-//        public float _maxAnimationTime;
-        
-        
-        //基本变量
-        public GameObject animGameObject;
 
-        public AnimType animType;
-        public PathType pathType = PathType.Line;
-        public bool isDone = false;
-        public float currentTime = 0;
-        public float totalTime = 0;
+        //基本变量
+        [SerializeField]private GameObject animGameObject;
+        [SerializeField]private AnimType animType;
+        [SerializeField]public PathType pathType = PathType.Line;
+        [SerializeField]private bool isDone;
+        
+        private float currentTime = 0;
+        private float totalTime = 1;
         private float currentPercentage; // 可不用初始化或重置
 
-        //V3
-        public Vector3 fromV3;
+        public void SetValue(Vector3 from,Vector3 to)
+        {
+            fromV3 = from;
+            toV3 = to;
+        }
+        
+        public void SetValue(Color from,Color to)
+        {
+            fromColor = from;
+            toColor = to;
+        }
+        
+        public void SetValue(Vector2 from,Vector2 to)
+        {
+            fromV2 = from;
+            toV2 = to;
+        }
 
-        public Vector3 toV3;
+        public void SetValue(float from,float to)
+        {
+            fromFloat = from;
+            toFloat = to;
+        }
+        
+        public GameObject AnimObject
+        {
+            get { return animGameObject; }
+        }
+        
+        public AnimType AnimType
+        {
+            get { return animType; }
+        }
+
+        public bool IsDone
+        {
+            get { return isDone; }
+        }
+        
+        //V3
+        [SerializeField] private Vector3 fromV3;
+
+        [SerializeField] private Vector3 toV3;
 
         //V2
-        public Vector2 fromV2;
+        [SerializeField] private Vector2 fromV2;
 
-        public Vector2 toV2;
+        [SerializeField] private Vector2 toV2;
 
         //Float
-        public float fromFloat = 0;
+        [SerializeField] private float fromFloat = 0;
 
-        public float toFloat = 0;
+        [SerializeField] private float toFloat = 0;
 
         //Move To(优先 toV3)
         public Transform toTransform;
 
         //Color
-        public Color fromColor;
+        [SerializeField] private Color fromColor;
 
-        public Color toColor;
-
-        List<Color> m_oldColor = new List<Color>();
+        [SerializeField] private Color toColor;
 
         //闪烁
-        public float blinkTime = 0;
+        public float blinkTime;
 
-        float blinkCurrentTime = 0;
+        float blinkCurrentTime;
 
         //其他设置
-        public bool isChild;
-
         public bool isLocal;
 
         public bool isPause;
@@ -79,7 +108,7 @@ namespace Tween
         public AnimCustomMethodFloat customMethodFloat;
 
         //缓存变量
-        RectTransform m_rectRransform;
+        private RectTransform rectTransform;
 
         public Transform m_transform;
 
@@ -93,13 +122,12 @@ namespace Tween
         private bool isExcutedCallback;
         private float delayTime = 0;
         private bool isIgnoreTimeScale = false;
-        
-        [SerializeField]
-        private Ease easeType = Ease.Linear;
+
+        [SerializeField] private Ease easeType = Ease.Linear;
         private int loopCount = -1; // 动画重复次数
         private LoopType loopType = LoopType.Once;
-        private AnimationCurve curve = new AnimationCurve();
-        
+        [SerializeField] private AnimationCurve curve = new AnimationCurve();
+
         /// <summary>
         /// </summary>
         /// <param name="isable">false 不回收脚本</param>
@@ -125,7 +153,7 @@ namespace Tween
             return this;
         }
 
-        public TweenScript SetIgnoreIimeScale(bool ignore)
+        public TweenScript SetIgnoreTimeScale(bool ignore)
         {
             isIgnoreTimeScale = ignore;
             return this;
@@ -192,19 +220,19 @@ namespace Tween
 
             Execute();
         }
-            
+
+        public void Execute(float value)
+        {
+            currentTime = value * totalTime;
+            Execute();
+        }
+        
         public void Execute()
         {
             //            try
 //            {
             switch (animType)
             {
-                case AnimType.UiColor:
-                    UguiColor();
-                    break;
-                case AnimType.UiAlpha:
-                    UguiAlpha();
-                    break;
                 case AnimType.UiAnchoredPosition:
                     UguiPosition();
                     break;
@@ -247,6 +275,15 @@ namespace Tween
 //            }
         }
 
+        public void FinishAnim()
+        {
+            currentTime = totalTime;
+            executeUpdate();
+            executeCallBack();
+            TweenUtil.GetInstance().animList.Remove(this);
+            StackObjectPool<TweenScript>.PutObject(this);
+        }
+
         //动画播放完毕执行回调
         public void executeCallBack()
         {
@@ -266,9 +303,9 @@ namespace Tween
             }
         }
 
-        public void Pause()
+        public void Pause(bool pause = true)
         {
-            isPause = true;
+            isPause = pause;
         }
 
         public void Play()
@@ -376,7 +413,7 @@ namespace Tween
 
         public void ExchangeColor()
         {
-            if (animType == AnimType.Color || animType == AnimType.UiColor)
+            if (animType == AnimType.Color)
             {
                 // Debug.Log("exchangge");
                 Color colorTemp = fromColor;
@@ -398,27 +435,29 @@ namespace Tween
 
         #region 初始化/公共
 
-        public TweenScript Init()
+        public TweenScript Init(GameObject animObj, AnimType type, float animTime, float delay = 0)
         {
+            animType = type;
+            return Init(animObj, animTime, delay);
+        }
+        public TweenScript Init(GameObject animObj,float animTime,float delay = 0)
+        {
+            animGameObject = animObj;
+            totalTime = animTime;
+            delayTime = delay;
             try
             {
                 switch (animType)
                 {
-                    case AnimType.UiColor:
-                        UguiColorInit(isChild);
-                        break;
-                    case AnimType.UiAlpha:
-                        UguiAlphaInit(isChild);
-                        break;
                     case AnimType.UiAnchoredPosition:
                     case AnimType.UiSize:
                         UguiAnchoredInit();
                         break;
                     case AnimType.Color:
-                        ColorInit(isChild);
+                        ColorInit();
                         break;
                     case AnimType.Alpha:
-                        AlphaInit(isChild);
+                        AlphaInit();
                         break;
                     case AnimType.Position:
                     case AnimType.Scale:
@@ -552,169 +591,18 @@ namespace Tween
 
         #endregion
 
-        #region UGUI
-
-        #region UGUI_Color
-
-        List<Image> m_animObjectList_Image = new List<Image>();
-        List<Text> m_animObjectList_Text = new List<Text>();
-
-        #region ALpha
-
-        public void UguiAlphaInit(bool isChild)
-        {
-            // Debug.Log(animGameObject.name);
-            m_animObjectList_Image.Clear();
-            m_animObjectList_Text.Clear();
-            m_oldColor.Clear();
-            if (isChild)
-            {
-                Image[] images = animGameObject.GetComponentsInChildren<Image>();
-                for (int i = 0; i < images.Length; i++)
-                {
-                    if (images[i].transform.GetComponent<Mask>() == null)
-                    {
-                        m_animObjectList_Image.Add(images[i]);
-                        m_oldColor.Add(images[i].color);
-                    }
-                }
-
-                Text[] texts = animGameObject.GetComponentsInChildren<Text>();
-                for (int i = 0; i < texts.Length; i++)
-                {
-                    m_animObjectList_Text.Add(texts[i]);
-                    m_oldColor.Add(texts[i].color);
-                }
-            }
-            else
-            {
-                Image image = animGameObject.GetComponent<Image>();
-                Text text = animGameObject.GetComponent<Text>();
-                if (image != null)
-                {
-                    m_animObjectList_Image.Add(image);
-                    m_oldColor.Add(image.color);
-                }
-
-                if (text != null)
-                {
-                    m_animObjectList_Text.Add(text);
-                    m_oldColor.Add(text.color);
-                }
-            }
-
-            SetUGUIAlpha(fromFloat);
-        }
-
-        void UguiAlpha()
-        {
-            SetUGUIAlpha(GetInterpValue(fromFloat, toFloat));
-        }
-
-        Color colTmp = new Color();
-
-        private void SetUGUIAlpha(float a)
-        {
-            Color newColor = colTmp;
-            int index = 0;
-            // Debug.Log("Count:" + m_animObjectList_Text.Count);
-            for (int i = 0; i < m_animObjectList_Image.Count; i++)
-            {
-                newColor = m_oldColor[index];
-                newColor.a = a;
-                m_animObjectList_Image[i].color = newColor;
-                index++;
-            }
-
-            for (int i = 0; i < m_animObjectList_Text.Count; i++)
-            {
-                newColor = m_oldColor[index];
-                newColor.a = a;
-                m_animObjectList_Text[i].color = newColor;
-                index++;
-            }
-        }
-
-        #endregion
-
-        #region Color
-
-        void UguiColor()
-        {
-            SetUGUIColor(GetInterpolationColor(fromColor, toColor));
-        }
-
-        public void UguiColorInit(bool isChild)
-        {
-            m_animObjectList_Image.Clear();
-            m_animObjectList_Text.Clear();
-            if (isChild)
-            {
-                Image[] images = animGameObject.GetComponentsInChildren<Image>();
-                for (int i = 0; i < images.Length; i++)
-                {
-                    if (images[i].transform.GetComponent<Mask>() == null)
-                    {
-                        m_animObjectList_Image.Add(images[i]);
-                    }
-                    else
-                    {
-                        //Debug.LogError("name:" + images[i].gameObject.name);
-                    }
-                }
-
-                Text[] texts = animGameObject.GetComponentsInChildren<Text>();
-                for (int i = 0; i < texts.Length; i++)
-                {
-                    m_animObjectList_Text.Add(texts[i]);
-                }
-            }
-            else
-            {
-                Image image = animGameObject.GetComponent<Image>();
-                Text text = animGameObject.GetComponent<Text>();
-                if (image != null)
-                {
-                    m_animObjectList_Image.Add(image);
-                }
-
-                if (text != null)
-                {
-                    m_animObjectList_Text.Add(text);
-                }
-            }
-
-            SetUGUIColor(fromColor);
-        }
-
-        void SetUGUIColor(Color color)
-        {
-            for (int i = 0; i < m_animObjectList_Image.Count; i++)
-            {
-                m_animObjectList_Image[i].color = color;
-            }
-
-            for (int i = 0; i < m_animObjectList_Text.Count; i++)
-            {
-                m_animObjectList_Text[i].color = color;
-            }
-        }
-
-        #endregion
-
-        #endregion
 
         #region UGUI_SizeDelta
 
         void SizeDelta()
         {
-            if (m_rectRransform == null)
+            if (rectTransform == null)
             {
                 Debug.LogError(m_transform.name + "缺少RectTransform组件，不能进行sizeDelta变换！！");
                 return;
             }
 
-            m_rectRransform.sizeDelta = GetInterpV3(fromV2, toV2);
+            rectTransform.sizeDelta = GetInterpV3(fromV2, toV2);
         }
 
         #endregion
@@ -723,17 +611,16 @@ namespace Tween
 
         public void UguiAnchoredInit()
         {
-            m_rectRransform = animGameObject.GetComponent<RectTransform>();
+            rectTransform = animGameObject.GetComponent<RectTransform>();
         }
 
         void UguiPosition()
         {
-            m_rectRransform.anchoredPosition3D = GetInterpV3(fromV3, toV3);
+            rectTransform.anchoredPosition3D = GetInterpV3(fromV3, toV3);
         }
 
         #endregion
 
-        #endregion
 
         #region Transfrom
 
@@ -782,32 +669,19 @@ namespace Tween
 
         #region Color
 
-        List<SpriteRenderer> m_animObjectList_Sprite = new List<SpriteRenderer>();
+        private MaskableGraphic maskableGraphic;
+        private Renderer render;
+        private SpriteRenderer spriteRender;
+        private ParticleSystem particleSystem;
 
         #region ALPHA
 
-        public void AlphaInit(bool isChild)
+        public void AlphaInit()
         {
-            m_animObjectList_Sprite.Clear();
-            m_oldColor.Clear();
-            if (isChild)
-            {
-                SpriteRenderer[] images = animGameObject.GetComponentsInChildren<SpriteRenderer>();
-                for (int i = 0; i < images.Length; i++)
-                {
-                    m_animObjectList_Sprite.Add(images[i]);
-                    m_oldColor.Add(images[i].color);
-                }
-            }
-            else
-            {
-                SpriteRenderer image = animGameObject.GetComponent<SpriteRenderer>();
-                if (image != null)
-                {
-                    m_animObjectList_Sprite.Add(image);
-                    m_oldColor.Add(image.color);
-                }
-            }
+            maskableGraphic = animGameObject.GetComponent<MaskableGraphic>();
+            render = animGameObject.GetComponent<Renderer>();
+            spriteRender = animGameObject.GetComponent<SpriteRenderer>();
+            particleSystem = animGameObject.GetComponent<ParticleSystem>();
 
             SetAlpha(fromFloat);
         }
@@ -817,17 +691,32 @@ namespace Tween
             SetAlpha(GetInterpValue(fromFloat, toFloat));
         }
 
-        private void SetAlpha(float a)
+        private void SetAlpha(float curAlpha)
         {
-            Color newColor = new Color();
-            int index = 0;
-            for (int i = 0; i < m_animObjectList_Sprite.Count; i++)
+            if (maskableGraphic != null)
+                maskableGraphic.color = new Color(maskableGraphic.color.r, maskableGraphic.color.g,
+                    maskableGraphic.color.b, curAlpha);
+
+            if (spriteRender != null)
             {
-                newColor = m_oldColor[index];
-                newColor.a = a;
-                Debug.Log(a);
-                m_animObjectList_Sprite[i].color = newColor;
-                index++;
+                spriteRender.color = new Color(spriteRender.color.r, spriteRender.color.g, spriteRender.color.b,
+                    curAlpha);
+            }
+            else if (render != null)
+            {
+                if (render.sharedMaterial != null && render.sharedMaterial.HasProperty("_TintColor")) 
+                {
+                    Color currentColor = render.sharedMaterial.GetColor("_TintColor");
+                    Color newColor = new Color(currentColor.r, currentColor.g, currentColor.b, curAlpha);
+                    render.sharedMaterial.SetColor("_TintColor", newColor);
+                }
+            }
+
+            if (particleSystem != null)
+            {
+                var particleMain = particleSystem.main;
+                particleMain.startColor = new Color(particleMain.startColor.color.r,
+                    particleMain.startColor.color.g, particleMain.startColor.color.b, curAlpha);
             }
         }
 
@@ -835,26 +724,12 @@ namespace Tween
 
         #region Color
 
-        public void ColorInit(bool isChild)
+        public void ColorInit()
         {
-            m_animObjectList_Sprite.Clear();
-            m_oldColor.Clear();
-            if (isChild)
-            {
-                SpriteRenderer[] images = animGameObject.GetComponentsInChildren<SpriteRenderer>();
-                for (int i = 0; i < images.Length; i++)
-                {
-                    m_animObjectList_Sprite.Add(images[i]);
-                }
-            }
-            else
-            {
-                SpriteRenderer image = animGameObject.GetComponent<SpriteRenderer>();
-                if (image != null)
-                {
-                    m_animObjectList_Sprite.Add(image);
-                }
-            }
+            maskableGraphic = animGameObject.GetComponent<MaskableGraphic>();
+            render = animGameObject.GetComponent<Renderer>();
+            spriteRender = animGameObject.GetComponent<SpriteRenderer>();
+            particleSystem = animGameObject.GetComponent<ParticleSystem>();
 
             SetColor(fromColor);
         }
@@ -873,11 +748,23 @@ namespace Tween
             return result;
         }
 
-        private void SetColor(Color color)
+        private void SetColor(Color curColor)
         {
-            for (int i = 0; i < m_animObjectList_Sprite.Count; i++)
+            if (maskableGraphic != null)
+                maskableGraphic.color = curColor;
+
+            if (spriteRender != null)
+                spriteRender.color = curColor;
+            else if (render != null)
             {
-                m_animObjectList_Sprite[i].color = color;
+                if (render.sharedMaterial != null)
+                    render.sharedMaterial.color = curColor;
+            }
+
+            if (particleSystem != null)
+            {
+                var particleMain = particleSystem.main;
+                particleMain.startColor = curColor;
             }
         }
 
@@ -1059,5 +946,11 @@ namespace Tween
         }
 
         #endregion
+
+        public void Reset()
+        {
+            currentTime = 0;
+            isDone = false;
+        }
     }
 }

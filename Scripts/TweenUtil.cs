@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEditor;
+
 #endif
 namespace Tween
 {
@@ -45,14 +46,10 @@ namespace Tween
             int repeatCount = -1)
         {
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
-            tweenTmp.animType = AnimType.CustomFloat;
-            tweenTmp.fromFloat = from;
-            tweenTmp.toFloat = to;
+            tweenTmp.SetValue(from, to);
             tweenTmp.customMethodFloat = method;
-            tweenTmp.SetDelay(delayTime);
-            tweenTmp.totalTime = time;
             tweenTmp.SetLoopType(repeatType, repeatCount);
-            tweenTmp.Init();
+            tweenTmp.Init(null, AnimType.CustomFloat, time, delayTime);
             GetInstance().animList.Add(tweenTmp);
             return tweenTmp;
         }
@@ -64,14 +61,10 @@ namespace Tween
             int repeatCount = -1)
         {
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
-            tweenTmp.animType = AnimType.CustomVector2;
-            tweenTmp.fromV2 = from;
-            tweenTmp.toV2 = to;
+            tweenTmp.SetValue(from, to);
             tweenTmp.customMethodV2 = method;
-            tweenTmp.SetDelay(delayTime);
-            tweenTmp.totalTime = time;
             tweenTmp.SetLoopType(repeatType, repeatCount);
-            tweenTmp.Init();
+            tweenTmp.Init(null, AnimType.CustomVector2, time, delayTime);
             GetInstance().animList.Add(tweenTmp);
             return tweenTmp;
         }
@@ -83,14 +76,10 @@ namespace Tween
             int repeatCount = -1)
         {
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
-            tweenTmp.animType = AnimType.CustomVector3;
-            tweenTmp.fromV3 = from;
-            tweenTmp.toV2 = to;
+            tweenTmp.SetValue(from, to);
             tweenTmp.customMethodV3 = method;
-            tweenTmp.SetDelay(delayTime);
-            tweenTmp.totalTime = time;
             tweenTmp.SetLoopType(repeatType, repeatCount);
-            tweenTmp.Init();
+            tweenTmp.Init(null, AnimType.CustomVector3, time, delayTime);
             GetInstance().animList.Add(tweenTmp);
             return tweenTmp;
         }
@@ -111,15 +100,6 @@ namespace Tween
                 tweenData.executeCallBack();
             }
 
-            GetInstance().animList.Remove(tweenData);
-            StackObjectPool<TweenScript>.PutObject(tweenData);
-        }
-
-        public static void FinishAnim(TweenScript tweenData)
-        {
-            tweenData.currentTime = tweenData.totalTime;
-            tweenData.executeUpdate();
-            tweenData.executeCallBack();
             GetInstance().animList.Remove(tweenData);
             StackObjectPool<TweenScript>.PutObject(tweenData);
         }
@@ -153,7 +133,7 @@ namespace Tween
         {
             // 避免同一物体同一类型同时存在两次.
             var a = animList.Find(x =>
-                x.animGameObject == tweenScript.animGameObject && x.animType == tweenScript.animType);
+                x.AnimObject == tweenScript.AnimObject && x.AnimType == tweenScript.AnimType);
             if (a != null)
             {
                 animList.Remove(a);
@@ -168,7 +148,7 @@ namespace Tween
             for (int i = 0; i < animList.Count; i++)
             {
                 animList[i].executeUpdate();
-                if (animList[i].isDone)
+                if (animList[i].IsDone) 
                 {
                     TweenScript tweenTmp = animList[i];
                     if (!tweenTmp.AnimReplayLogic())
@@ -181,6 +161,11 @@ namespace Tween
                     tweenTmp.executeCallBack(); // todo this is bug.
                 }
             }
+        }
+
+        public void Finish()
+        {
+            
         }
 
         #endregion
@@ -204,12 +189,10 @@ namespace Tween
         Position,
         Rotate,
         Scale,
-//        LocalPosition,
-//        LocalRotate,
         Color, // SpriteRenderer.Color
         Alpha,
-        UiColor, // Image.Color  Text.Color
-        UiAlpha,
+//        UiColor, // Image.Color  Text.Color
+//        UiAlpha,
         UiAnchoredPosition,
         UiSize,
         CustomVector3,

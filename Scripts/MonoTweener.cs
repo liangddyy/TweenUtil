@@ -7,8 +7,6 @@ namespace Tween
     [AddComponentMenu("Tween/MonoTweener")]
     public class MonoTweener : MonoBehaviour
     {
-        #region<Play Setting>
-
         [System.Serializable]
         public class OnFinish : UnityEvent
         {
@@ -22,7 +20,6 @@ namespace Tween
         [SerializeField] private bool playOnEnable;
         [SerializeField] private bool ignoreTimeScale;
 
-//    private float playTimeNote;
         private bool isPing = true; //true to ping，false to pong
 
         private float currentTotalTime;
@@ -63,8 +60,6 @@ namespace Tween
 
             return curValue;
         }
-
-        #endregion
 
         [Range(0f, 1f)] [HideInInspector] [SerializeField]
         float _previewValue;
@@ -129,11 +124,9 @@ namespace Tween
         {
             foreach (TweenScript thisTween in tweens)
             {
-                thisTween.totalTime = animationTime;
-                thisTween.Init();
+                thisTween.Init(gameObject, animationTime, delay);
             }
         }
-
 
         // Update is called once per frame
         void Update()
@@ -174,14 +167,7 @@ namespace Tween
         {
             foreach (TweenScript thisTween in tweens)
             {
-                thisTween.currentTime = curveValue * animationTime;
-                thisTween.Execute();
-//                if (curveValue >= thisTween.minAnimationTime && curveValue <= thisTween.maxAnimationTime)
-//                {
-//                    float thisValue = (curveValue - thisTween.minAnimationTime) /
-//                                      (thisTween.maxAnimationTime - thisTween.minAnimationTime);
-//                    thisTween.PlayAtTime(thisValue);
-//                }
+                thisTween.Execute(curveValue);
             }
         }
 
@@ -192,7 +178,6 @@ namespace Tween
             {
                 case LoopType.Once:
                     _isPlaying = false;
-//                this.enabled = false;
                     m_onFinish.Invoke();
                     break;
 
@@ -215,69 +200,6 @@ namespace Tween
         public void ClearOnFinished()
         {
             m_onFinish.RemoveAllListeners();
-        }
-
-        public void SetFirstTweenValue(Vector3 setFromVector, Vector3 setToVector)
-        {
-            TweenScript thisFirstTween = firstTween;
-            if (thisFirstTween != null)
-            {
-                thisFirstTween.fromV3 = setFromVector;
-                thisFirstTween.toV3 = setToVector;
-//                thisFirstTween.SetValue(setFromVector, setToVector);
-            }
-        }
-
-        public void SetFirstTweenValue(Color setFromColor, Color setToColor)
-        {
-            TweenScript thisFirstTween = firstTween;
-            if (thisFirstTween != null)
-            {
-//                thisFirstTween.SetValue(setFromColor, setToColor);
-                thisFirstTween.fromColor = setFromColor;
-                thisFirstTween.toColor = setToColor;
-            }
-        }
-
-        public void SetFirstTweenValue(float setFromFloat, float setToFloat)
-        {
-            TweenScript thisFirstTween = firstTween;
-            if (thisFirstTween != null)
-            {
-                thisFirstTween.fromFloat = setFromFloat;
-                thisFirstTween.toFloat = setToFloat;
-//                thisFirstTween.SetValue(setFromFloat, setToFloat);
-            }
-        }
-
-        public void SetTweenValue(int index, Vector3 setFromVector, Vector3 setToVector)
-        {
-            if (index < tweens.Count && index >= 0)
-            {
-                tweens[index].fromV3 = setFromVector;
-                tweens[index].toV3 = setToVector;
-//                tweens[index].SetValue(setFromVector, setToVector);
-            }
-        }
-
-        public void SetTweenValue(int index, Color setFromColor, Color setToColor)
-        {
-            if (index < tweens.Count && index >= 0)
-            {
-                tweens[index].fromColor = setFromColor;
-                tweens[index].toColor = setToColor;
-//                tweens[index].SetValue(setFromColor, setToColor);
-            }
-        }
-
-        public void SetTweenValue(int index, float setFromFloat, float setToFloat)
-        {
-            if (index < tweens.Count && index >= 0)
-            {
-                tweens[index].fromFloat = setFromFloat;
-                tweens[index].toFloat = setToFloat;
-//                tweens[index].SetValue(setFromFloat, setToFloat);
-            }
         }
 
         public TweenScript GetTween(int index)

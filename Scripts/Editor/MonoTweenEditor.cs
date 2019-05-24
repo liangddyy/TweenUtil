@@ -46,7 +46,7 @@ namespace Tween
             }
         }
 
-        private Texture2D GetIcon(AnimType type)
+        private Texture2D GetCustomTnIcon(AnimType type)
         {
             InitIcon();
             switch (type)
@@ -58,7 +58,6 @@ namespace Tween
                 case AnimType.Scale:
                     return scaleIcon;
                 case AnimType.Color:
-                case AnimType.UiColor:
                     return colorIcon;
                 case AnimType.Alpha:
                     return alphaIcon;
@@ -148,7 +147,7 @@ namespace Tween
 
             GUILayout.EndHorizontal();
 
-            // 绘制动画ITEMS
+            // draw items
             for (int i = 0; i < tweens.arraySize; i++)
             {
                 GUILayout.BeginVertical(EditorStyles.helpBox);
@@ -160,7 +159,7 @@ namespace Tween
                 string thisTweenName = "Tween" + (i + 1) + ":" +
                                        thisTween_TweenType.enumNames[thisTween_TweenType.enumValueIndex];
                 var tweenType = (AnimType) thisTween_TweenType.enumValueIndex;
-                Texture2D tweenIcon = GetIcon(tweenType);
+                Texture2D tweenIcon = GetCustomTnIcon(tweenType);
 
                 GUILayout.BeginHorizontal();
 
@@ -185,7 +184,7 @@ namespace Tween
 
                 if (!deleteElement)
                 {
-                    SerializedProperty thisTween_Curve = thisTween.FindPropertyRelative("_curve");
+                    SerializedProperty thisTween_Curve = thisTween.FindPropertyRelative("curve");
                     SerializedProperty thisTween_IsLocal = thisTween.FindPropertyRelative("isLocal");
                     SerializedProperty thisTween_EaseType = thisTween.FindPropertyRelative("easeType");
 
@@ -203,57 +202,93 @@ namespace Tween
                     }
 
                     GUILayout.TextArea("", GUILayout.Height(2));
-                    if (thisTween_TweenType != null)
+
+                    DrawCustomTn(thisTween, tweenType);
+                }
+
+                GUILayout.EndVertical();
+            }
+
+            GUILayout.EndVertical();
+
+            EditorGUILayout.PropertyField(m_onFinish);
+            GUILayout.EndVertical();
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DrawCustomTn(SerializedProperty thisTween, AnimType animType)
+        {
+            switch (animType)
+            {
+                case AnimType.Position:
+                case AnimType.Rotate:
+                case AnimType.Scale:
+                case AnimType.UiAnchoredPosition:
+                    SerializedProperty thisFromVector = thisTween.FindPropertyRelative("fromV3");
+                    SerializedProperty thisToVector = thisTween.FindPropertyRelative("toV3");
+                    GUILayout.BeginHorizontal();
+                    if (GUILayout.Button("SetFromValue", EditorStyles.miniButtonLeft))
                     {
-                        var tweenTypeId = (AnimType) thisTween_TweenType.enumValueIndex;
-                        switch (tweenTypeId)
-                        {
-                            case AnimType.Position:
-                            case AnimType.Rotate:
-                            case AnimType.Scale:
-                            case AnimType.UiAnchoredPosition:
-//                            case AnimType.UISizeDelta:
-                                SerializedProperty thisFromVector = thisTween.FindPropertyRelative("fromV3");
-                                SerializedProperty thisToVector = thisTween.FindPropertyRelative("toV3");
+                        SetCurrentValueCustomTn(thisTween, true);
+                    }
 
-                                GUILayout.BeginHorizontal();
-                                if (GUILayout.Button("SetFromValue", EditorStyles.miniButtonLeft))
-                                {
-                                    SetCurrentValueToTween(thisTween, true);
-                                }
+                    if (GUILayout.Button("SetToValue", EditorStyles.miniButtonRight))
+                    {
+                        SetCurrentValueCustomTn(thisTween, false);
+                    }
 
-                                if (GUILayout.Button("SetToValue", EditorStyles.miniButtonRight))
-                                {
-                                    SetCurrentValueToTween(thisTween, false);
-                                }
+                    GUILayout.EndHorizontal();
+                    Vector3 fromVector =
+                        EditorGUILayout.Vector3Field("From Vector", thisFromVector.vector3Value);
+                    Vector3 toVecor = EditorGUILayout.Vector3Field("To Vector", thisToVector.vector3Value);
 
-                                GUILayout.EndHorizontal();
+                    thisFromVector.vector3Value = fromVector;
+                    thisToVector.vector3Value = toVecor;
+                    break;
+                case AnimType.UiSize:
+                    SerializedProperty thisFromVector2 = thisTween.FindPropertyRelative("fromV2");
+                    SerializedProperty thisToVector2 = thisTween.FindPropertyRelative("toV2");
+                    GUILayout.BeginHorizontal();
+                    if (GUILayout.Button("SetFromValue", EditorStyles.miniButtonLeft))
+                    {
+                        SetCurrentValueCustomTn(thisTween, true);
+                    }
 
-                                Vector3 fromVector =
-                                    EditorGUILayout.Vector3Field("From Vector", thisFromVector.vector3Value);
-                                Vector3 toVecor = EditorGUILayout.Vector3Field("To Vector", thisToVector.vector3Value);
+                    if (GUILayout.Button("SetToValue", EditorStyles.miniButtonRight))
+                    {
+                        SetCurrentValueCustomTn(thisTween, false);
+                    }
 
-                                thisFromVector.vector3Value = fromVector;
-                                thisToVector.vector3Value = toVecor;
-                                break;
+                    GUILayout.EndHorizontal();
+                    Vector2 fromVector2 =
+                        EditorGUILayout.Vector2Field("From Vector", thisFromVector2.vector2Value);
+                    Vector2 toVector2 = EditorGUILayout.Vector2Field("To Vector", thisToVector2.vector2Value);
 
-                            case AnimType.Color:
-                                SerializedProperty fromColor = thisTween.FindPropertyRelative("_fromColor");
-                                SerializedProperty toColor = thisTween.FindPropertyRelative("_toColor");
-                                EditorGUILayout.PropertyField(fromColor);
-                                EditorGUILayout.PropertyField(toColor);
-                                break;
+                    thisFromVector2.vector2Value = fromVector2;
+                    thisToVector2.vector2Value = toVector2;
+                    break;
+                case AnimType.Color:
+                    SerializedProperty fromColor = thisTween.FindPropertyRelative("fromColor");
+                    SerializedProperty toColor = thisTween.FindPropertyRelative("toColor");
+                    EditorGUILayout.PropertyField(fromColor);
+                    EditorGUILayout.PropertyField(toColor);
+                    break;
 
-                            case AnimType.Alpha:
+                case AnimType.Alpha:
 //                            case AnimType.FieldOfViewTween:
-                                SerializedProperty fromAlpha = thisTween.FindPropertyRelative("_fromFloat");
-                                SerializedProperty toAlpha = thisTween.FindPropertyRelative("_toFloat");
-                                EditorGUILayout.PropertyField(fromAlpha);
-                                EditorGUILayout.PropertyField(toAlpha);
-                                break;
-                            default:
-                                EditorGUILayout.LabelField("todo" + tweenTypeId);
-                                break;
+                    SerializedProperty fromAlpha = thisTween.FindPropertyRelative("fromFloat");
+                    SerializedProperty toAlpha = thisTween.FindPropertyRelative("toFloat");
+                    EditorGUILayout.PropertyField(fromAlpha);
+                    EditorGUILayout.PropertyField(toAlpha);
+                    break;
+//                case AnimType.CustomFloat:
+//                    SerializedProperty floatMethod = thisTween.FindPropertyRelative("customMethodFloat");
+//                    EditorGUILayout.PropertyField(floatMethod);
+//                    break;
+                default:
+                    EditorGUILayout.LabelField("todo" + animType);
+                    break;
 //                            case AnimType.BezierCurve:
 //                                SerializedProperty bezierCurve = thisTween.FindPropertyRelative("_bezierCurve");
 //
@@ -273,60 +308,10 @@ namespace Tween
 //                                }
 //                                GUILayout.EndHorizontal();
 //                                break;
-                        }
-                    }
-                }
-
-                GUILayout.EndVertical();
             }
-
-            GUILayout.EndVertical();
-
-            EditorGUILayout.PropertyField(m_onFinish);
-            GUILayout.EndVertical();
-
-            serializedObject.ApplyModifiedProperties();
         }
 
-        void AddTween(SerializedProperty tweens)
-        {
-            MonoTweener tar = (MonoTweener) target;
-
-            if (addTweenType == AnimType.UiSize || addTweenType == AnimType.UiAnchoredPosition)
-            {
-                if (tar.GetComponent<RectTransform>() == null)
-                {
-                    Debug.LogError("当前物体不是UI,不能添加UI动画");
-                    return;
-                }
-            }
-
-            tweens.arraySize += 1;
-            SerializedProperty thisTween = tweens.GetArrayElementAtIndex(tweens.arraySize - 1);
-
-            SerializedProperty tweenObject = thisTween.FindPropertyRelative("animGameObject");
-
-//            SerializedProperty thisTween_IsSelf = thisTween.FindPropertyRelative("_isSelf");
-            SerializedProperty thisTween_IsLocal = thisTween.FindPropertyRelative("isLocal");
-
-            SerializedProperty thisTweenType = thisTween.FindPropertyRelative("animType");
-            SerializedProperty thisTween_Curve = thisTween.FindPropertyRelative("_curve");
-
-
-            thisTweenType.enumValueIndex = (int) addTweenType;
-//            thisTween_IsSelf.boolValue = true;
-            thisTween_IsLocal.boolValue = true;
-
-            thisTween_Curve.animationCurveValue = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
-
-//            if (thisTween_IsSelf.boolValue)
-            tweenObject.objectReferenceValue = tar.gameObject;
-
-            SetCurrentValueToTween(thisTween, false);
-            SetCurrentValueToTween(thisTween, true);
-        }
-
-        void SetCurrentValueToTween(SerializedProperty thisTween, bool isFromValue)
+        void SetCurrentValueCustomTn(SerializedProperty thisTween, bool isFromValue)
         {
             SerializedProperty tweenObject = thisTween.FindPropertyRelative("animGameObject");
             SerializedProperty isLocal = thisTween.FindPropertyRelative("isLocal");
@@ -334,6 +319,9 @@ namespace Tween
 
             SerializedProperty fromVector = thisTween.FindPropertyRelative("fromV3");
             SerializedProperty toVector = thisTween.FindPropertyRelative("toV3");
+
+            SerializedProperty fromVector2 = thisTween.FindPropertyRelative("fromV2");
+            SerializedProperty toVector2 = thisTween.FindPropertyRelative("toV2");
 
             SerializedProperty fromColor = thisTween.FindPropertyRelative("fromColor");
             SerializedProperty toColor = thisTween.FindPropertyRelative("toColor");
@@ -351,20 +339,22 @@ namespace Tween
                     case AnimType.Position:
                         vectorValue = isLocal.boolValue ? tweenObj.localPosition : tweenObj.position;
                         break;
-
                     case AnimType.Rotate:
                         vectorValue = isLocal.boolValue ? tweenObj.localEulerAngles : tweenObj.eulerAngles;
                         break;
-
                     case AnimType.Scale:
                         vectorValue = tweenObj.localScale;
                         break;
-
                     case AnimType.Alpha:
                         fromFloat.floatValue = 0;
                         toFloat.floatValue = 1;
                         break;
-
+                    case AnimType.UiAnchoredPosition:
+                        vectorValue = tweenObj.GetComponent<RectTransform>().anchoredPosition;
+                        break;
+                    case AnimType.UiSize:
+                        vectorValue = tweenObj.GetComponent<RectTransform>().sizeDelta;
+                        break;
 //                    case AnimType.FieldOfViewTween:
 //                        Transform cameraTran = (Transform) tweenObject.objectReferenceValue;
 //                        Camera camera = cameraTran.GetComponent<Camera>();
@@ -375,7 +365,6 @@ namespace Tween
 //                        }
 //
 //                        break;
-
 //                    case AnimType.BezierCurve:
 //                        break;
 //                    case AnimType.UIAnchorPosition:
@@ -392,12 +381,57 @@ namespace Tween
             }
 
             if (isFromValue)
+            {
                 fromVector.vector3Value = vectorValue;
+                fromVector2.vector2Value = vectorValue;
+            }
             else
+            {
                 toVector.vector3Value = vectorValue;
+                toVector2.vector2Value = vectorValue;
+            }
 
             fromColor.colorValue = Color.white;
             toColor.colorValue = Color.white;
+        }
+
+        void AddTween(SerializedProperty tweens)
+        {
+            if (addTweenType == AnimType.CustomFloat || addTweenType == AnimType.CustomVector2 ||
+                addTweenType == AnimType.CustomVector3 || addTweenType == AnimType.Blink)
+            {
+                Debug.LogError("暂不支持该类型.请直接使用脚本执行该类型动画.");
+                return;
+            }
+
+            MonoTweener tar = (MonoTweener) target;
+
+            if (addTweenType == AnimType.UiSize || addTweenType == AnimType.UiAnchoredPosition)
+            {
+                if (tar.GetComponent<RectTransform>() == null)
+                {
+                    Debug.LogError("当前物体不是UI,不能添加UI动画");
+                    return;
+                }
+            }
+
+            tweens.arraySize += 1;
+            SerializedProperty thisTween = tweens.GetArrayElementAtIndex(tweens.arraySize - 1);
+            SerializedProperty tweenObject = thisTween.FindPropertyRelative("animGameObject");
+            SerializedProperty thisTween_IsLocal = thisTween.FindPropertyRelative("isLocal");
+            SerializedProperty thisTweenType = thisTween.FindPropertyRelative("animType");
+            SerializedProperty thisTween_Curve = thisTween.FindPropertyRelative("curve");
+
+
+            thisTweenType.enumValueIndex = (int) addTweenType;
+            thisTween_IsLocal.boolValue = true;
+
+            thisTween_Curve.animationCurveValue = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
+
+            tweenObject.objectReferenceValue = tar.gameObject;
+
+            SetCurrentValueCustomTn(thisTween, false);
+            SetCurrentValueCustomTn(thisTween, true);
         }
     }
 }
