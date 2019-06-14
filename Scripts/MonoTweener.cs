@@ -15,7 +15,7 @@ namespace Tween
         [SerializeField] OnFinish m_onFinish;
         [SerializeField] private LoopType playType = LoopType.Once;
         [SerializeField] private float animationTime = 1.0f;
-        [SerializeField] private float delay = 0;
+        [SerializeField] private float delay;
         [SerializeField] private bool playOnAwake;
         [SerializeField] private bool playOnEnable;
         [SerializeField] private bool ignoreTimeScale;
@@ -84,16 +84,6 @@ namespace Tween
         }
 
         [HideInInspector] [SerializeField] List<TweenScript> tweens = new List<TweenScript>();
-
-        public TweenScript firstTween
-        {
-            get
-            {
-                if (tweens.Count > 0)
-                    return tweens[0];
-                return null;
-            }
-        }
 
         bool _isPlaying = false;
         bool _isRewind = false;

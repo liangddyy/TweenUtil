@@ -1,6 +1,7 @@
 ﻿using Tween;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.UI;
 
 namespace Tween
 {
@@ -269,6 +270,18 @@ namespace Tween
                     thisToVector2.vector2Value = toVector2;
                     break;
                 case AnimType.Color:
+                    GUILayout.BeginHorizontal();
+                    if (GUILayout.Button("SetFromValue", EditorStyles.miniButtonLeft))
+                    {
+                        SetCurrentValueCustomTn(thisTween, true);
+                    }
+
+                    if (GUILayout.Button("SetToValue", EditorStyles.miniButtonRight))
+                    {
+                        SetCurrentValueCustomTn(thisTween, false);
+                    }
+
+                    GUILayout.EndHorizontal();
                     SerializedProperty fromColor = thisTween.FindPropertyRelative("fromColor");
                     SerializedProperty toColor = thisTween.FindPropertyRelative("toColor");
                     EditorGUILayout.PropertyField(fromColor);
@@ -330,11 +343,12 @@ namespace Tween
             SerializedProperty toFloat = thisTween.FindPropertyRelative("toFloat");
 
             Vector3 vectorValue = Vector3.zero;
+            Color colorValue = Color.white;
+            var animType = (AnimType) type.enumValueIndex;
             if (tweenObject.objectReferenceValue != null)
             {
                 Transform tweenObj = ((GameObject) (tweenObject.objectReferenceValue)).transform;
-                var tmp = (AnimType) type.enumValueIndex;
-                switch (tmp)
+                switch (animType)
                 {
                     case AnimType.Position:
                         vectorValue = isLocal.boolValue ? tweenObj.localPosition : tweenObj.position;
@@ -354,6 +368,29 @@ namespace Tween
                         break;
                     case AnimType.UiSize:
                         vectorValue = tweenObj.GetComponent<RectTransform>().sizeDelta;
+                        break;
+                    case AnimType.Color:
+                        var maskableGraphic = tweenObj.GetComponent<MaskableGraphic>();
+                        var render = tweenObj.GetComponent<Renderer>();
+                        var spriteRender = tweenObj.GetComponent<SpriteRenderer>();
+                        var particleSystem = tweenObj.GetComponent<ParticleSystem>();
+
+                        if (maskableGraphic != null)
+                            colorValue = maskableGraphic.color;
+                        if (spriteRender != null)
+                            colorValue = spriteRender.color;
+                        else if (render != null)
+                        {
+                            if (render.sharedMaterial != null)
+                                colorValue = render.sharedMaterial.color;
+                        }
+
+                        if (particleSystem != null)
+                        {
+                            var particleMain = particleSystem.main;
+                            colorValue = particleMain.startColor.color;
+                        }
+
                         break;
 //                    case AnimType.FieldOfViewTween:
 //                        Transform cameraTran = (Transform) tweenObject.objectReferenceValue;
@@ -384,15 +421,20 @@ namespace Tween
             {
                 fromVector.vector3Value = vectorValue;
                 fromVector2.vector2Value = vectorValue;
+                if (animType == AnimType.Color)
+                {
+                    fromColor.colorValue = colorValue;
+                }
             }
             else
             {
                 toVector.vector3Value = vectorValue;
                 toVector2.vector2Value = vectorValue;
+                if (animType == AnimType.Color)
+                {
+                    toColor.colorValue = colorValue;
+                }
             }
-
-            fromColor.colorValue = Color.white;
-            toColor.colorValue = Color.white;
         }
 
         void AddTween(SerializedProperty tweens)

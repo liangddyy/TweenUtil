@@ -12,44 +12,44 @@ namespace Tween
         #region 参数
 
         //基本变量
-        [SerializeField]private GameObject animGameObject;
-        [SerializeField]private AnimType animType;
-        [SerializeField]public PathType pathType = PathType.Line;
-        [SerializeField]private bool isDone;
-        
+        [SerializeField] private GameObject animGameObject;
+        [SerializeField] private AnimType animType;
+        [SerializeField] public PathType pathType = PathType.Line;
+        [SerializeField] private bool isDone;
+
         private float currentTime = 0;
         private float totalTime = 1;
         private float currentPercentage; // 可不用初始化或重置
 
-        public void SetValue(Vector3 from,Vector3 to)
+        public void SetValue(Vector3 from, Vector3 to)
         {
             fromV3 = from;
             toV3 = to;
         }
-        
-        public void SetValue(Color from,Color to)
+
+        public void SetValue(Color from, Color to)
         {
             fromColor = from;
             toColor = to;
         }
-        
-        public void SetValue(Vector2 from,Vector2 to)
+
+        public void SetValue(Vector2 from, Vector2 to)
         {
             fromV2 = from;
             toV2 = to;
         }
 
-        public void SetValue(float from,float to)
+        public void SetValue(float from, float to)
         {
             fromFloat = from;
             toFloat = to;
         }
-        
+
         public GameObject AnimObject
         {
             get { return animGameObject; }
         }
-        
+
         public AnimType AnimType
         {
             get { return animType; }
@@ -59,7 +59,7 @@ namespace Tween
         {
             get { return isDone; }
         }
-        
+
         //V3
         [SerializeField] private Vector3 fromV3;
 
@@ -226,8 +226,8 @@ namespace Tween
             currentTime = value * totalTime;
             Execute();
         }
-        
-        public void Execute()
+
+        private void Execute()
         {
             //            try
 //            {
@@ -440,7 +440,8 @@ namespace Tween
             animType = type;
             return Init(animObj, animTime, delay);
         }
-        public TweenScript Init(GameObject animObj,float animTime,float delay = 0)
+
+        public TweenScript Init(GameObject animObj, float animTime, float delay = 0)
         {
             animGameObject = animObj;
             totalTime = animTime;
@@ -704,7 +705,7 @@ namespace Tween
             }
             else if (render != null)
             {
-                if (render.sharedMaterial != null && render.sharedMaterial.HasProperty("_TintColor")) 
+                if (render.sharedMaterial != null && render.sharedMaterial.HasProperty("_TintColor"))
                 {
                     Color currentColor = render.sharedMaterial.GetColor("_TintColor");
                     Color newColor = new Color(currentColor.r, currentColor.g, currentColor.b, curAlpha);
