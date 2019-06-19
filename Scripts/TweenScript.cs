@@ -595,7 +595,6 @@ namespace Tween
 
         #endregion
 
-
         #region UGUI_SizeDelta
 
         void SizeDelta()
@@ -624,7 +623,6 @@ namespace Tween
         }
 
         #endregion
-
 
         #region Transfrom
 

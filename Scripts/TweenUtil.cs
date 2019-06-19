@@ -92,11 +92,6 @@ namespace Tween
 
         #region 功能函数
 
-        /// <summary>
-        /// 停止一个动画
-        /// </summary>
-        /// <param name="tweenData"></param>
-        /// <param name="isCallBack">是否触发回调</param>
         public static void StopAnim(TweenScript tweenData, bool isCallBack = false)
         {
             if (isCallBack)
