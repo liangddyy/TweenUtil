@@ -588,7 +588,6 @@ namespace Tween
 
         private void CustomMethodVector3()
         {
-            Debug.Log(toV3);
             if (customMethodV3 != null)
                 customMethodV3.Invoke(GetInterpV3(fromV3, toV3));
 //                customMethodV3(GetInterpV3(fromV3, toV3));
