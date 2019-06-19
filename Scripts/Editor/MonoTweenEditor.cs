@@ -205,6 +205,7 @@ namespace Tween
                     GUILayout.TextArea("", GUILayout.Height(2));
 
                     DrawCustomTn(thisTween, tweenType);
+                    DrawCustomTnAfter(thisTween, tweenType);
                 }
 
                 GUILayout.EndVertical();
@@ -218,10 +219,30 @@ namespace Tween
             serializedObject.ApplyModifiedProperties();
         }
 
+        private void DrawCustomTnAfter(SerializedProperty thisTween, AnimType animType)
+        {
+            switch (animType)
+            {
+                case AnimType.CustomFloat:
+                    SerializedProperty floatMethod = thisTween.FindPropertyRelative("customMethodFloat");
+                    EditorGUILayout.PropertyField(floatMethod);
+                    break;
+                case AnimType.CustomVector2:
+                    SerializedProperty v2Method = thisTween.FindPropertyRelative("customMethodV2");
+                    EditorGUILayout.PropertyField(v2Method);
+                    break;
+                case AnimType.CustomVector3:
+                    SerializedProperty v3Method = thisTween.FindPropertyRelative("customMethodV3");
+                    EditorGUILayout.PropertyField(v3Method);
+                    break;
+            }
+        }
+        
         private void DrawCustomTn(SerializedProperty thisTween, AnimType animType)
         {
             switch (animType)
             {
+                case AnimType.CustomVector3:
                 case AnimType.Position:
                 case AnimType.Rotate:
                 case AnimType.Scale:
@@ -247,6 +268,7 @@ namespace Tween
                     thisFromVector.vector3Value = fromVector;
                     thisToVector.vector3Value = toVecor;
                     break;
+                case AnimType.CustomVector2:
                 case AnimType.UiSize:
                     SerializedProperty thisFromVector2 = thisTween.FindPropertyRelative("fromV2");
                     SerializedProperty thisToVector2 = thisTween.FindPropertyRelative("toV2");
@@ -287,40 +309,16 @@ namespace Tween
                     EditorGUILayout.PropertyField(fromColor);
                     EditorGUILayout.PropertyField(toColor);
                     break;
-
+                case AnimType.CustomFloat:
                 case AnimType.Alpha:
-//                            case AnimType.FieldOfViewTween:
                     SerializedProperty fromAlpha = thisTween.FindPropertyRelative("fromFloat");
                     SerializedProperty toAlpha = thisTween.FindPropertyRelative("toFloat");
                     EditorGUILayout.PropertyField(fromAlpha);
                     EditorGUILayout.PropertyField(toAlpha);
                     break;
-//                case AnimType.CustomFloat:
-//                    SerializedProperty floatMethod = thisTween.FindPropertyRelative("customMethodFloat");
-//                    EditorGUILayout.PropertyField(floatMethod);
-//                    break;
                 default:
                     EditorGUILayout.LabelField("todo" + animType);
                     break;
-//                            case AnimType.BezierCurve:
-//                                SerializedProperty bezierCurve = thisTween.FindPropertyRelative("_bezierCurve");
-//
-//                                GUILayout.BeginHorizontal();
-//                                EditorGUILayout.PropertyField(bezierCurve, new GUIContent("Curve:"));
-//
-//                                if (bezierCurve.objectReferenceValue == null)
-//                                {
-//                                    if (GUILayout.Button("Create", EditorStyles.miniButton, GUILayout.Width(60)))
-//                                    {
-//                                        GameObject newObj = new GameObject();
-//                                        newObj.name = "Path";
-//                                        newObj.transform.position = tar.transform.position;
-//                                        bezierCurve.objectReferenceValue = newObj.AddComponent<JBezierCurve>();
-//                                        Selection.activeGameObject = newObj;
-//                                    }
-//                                }
-//                                GUILayout.EndHorizontal();
-//                                break;
             }
         }
 
@@ -404,13 +402,10 @@ namespace Tween
 //                        break;
 //                    case AnimType.BezierCurve:
 //                        break;
-//                    case AnimType.UIAnchorPosition:
-//                        vectorValue = tweenObj.GetComponent<RectTransform>().anchoredPosition;
-//                        break;
-//                    
-//                    case AnimType.UISizeDelta:
-//                        vectorValue = tweenObj.GetComponent<RectTransform>().sizeDelta;
-//                        break;
+                    case AnimType.CustomFloat:
+                    case AnimType.CustomVector2:
+                    case AnimType.CustomVector3:
+                        return;
                     default:
                         Debug.Log("setValue 未处理的类型");
                         break;
@@ -439,8 +434,7 @@ namespace Tween
 
         void AddTween(SerializedProperty tweens)
         {
-            if (addTweenType == AnimType.CustomFloat || addTweenType == AnimType.CustomVector2 ||
-                addTweenType == AnimType.CustomVector3 || addTweenType == AnimType.Blink)
+            if (addTweenType == AnimType.Blink)
             {
                 Debug.LogError("暂不支持该类型.请直接使用脚本执行该类型动画.");
                 return;

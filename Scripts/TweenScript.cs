@@ -572,22 +572,26 @@ namespace Tween
 
         #region CustomMethod
 
-        public void CustomMethodFloat()
+        private void CustomMethodFloat()
         {
             if (customMethodFloat != null)
-                customMethodFloat(GetInterpValue(fromFloat, toFloat));
+                customMethodFloat.Invoke(GetInterpValue(fromFloat, toFloat));
+//                customMethodFloat(GetInterpValue(fromFloat, toFloat));
         }
 
-        public void CustomMethodVector2()
+        private void CustomMethodVector2()
         {
             if (customMethodV2 != null)
-                customMethodV2(GetInterpV3(fromV2, toV2));
+                customMethodV2.Invoke(GetInterpV3(fromV2, toV2));
+//                customMethodV2(GetInterpV3(fromV2, toV2));
         }
 
-        public void CustomMethodVector3()
+        private void CustomMethodVector3()
         {
+            Debug.Log(toV3);
             if (customMethodV3 != null)
-                customMethodV3(GetInterpV3(fromV3, toV3));
+                customMethodV3.Invoke(GetInterpV3(fromV3, toV3));
+//                customMethodV3(GetInterpV3(fromV3, toV3));
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Events;
 #if UNITY_EDITOR
 using UnityEditor;
 
@@ -39,7 +40,7 @@ namespace Tween
 
         #region CustomTween
 
-        public static TweenScript CustomTweenFloat(AnimCustomMethodFloat method, float from, float to,
+        public static TweenScript CustomTweenFloat(UnityAction<float> method, float from, float to,
             float time = 0.5f,
             float delayTime = 0,
             LoopType repeatType = LoopType.Once,
@@ -47,14 +48,15 @@ namespace Tween
         {
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.SetValue(from, to);
-            tweenTmp.customMethodFloat = method;
+            tweenTmp.customMethodFloat = new AnimCustomMethodFloat();
+            tweenTmp.customMethodFloat.AddListener(method);
             tweenTmp.SetLoopType(repeatType, repeatCount);
             tweenTmp.Init(null, AnimType.CustomFloat, time, delayTime);
             GetInstance().animList.Add(tweenTmp);
             return tweenTmp;
         }
 
-        public static TweenScript CustomTweenVector2(AnimCustomMethodVector2 method, Vector2 from, Vector2 to,
+        public static TweenScript CustomTweenVector2(UnityAction<Vector2> method, Vector2 from, Vector2 to,
             float time = 0.5f,
             float delayTime = 0,
             LoopType repeatType = LoopType.Once,
@@ -62,14 +64,15 @@ namespace Tween
         {
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.SetValue(from, to);
-            tweenTmp.customMethodV2 = method;
+            tweenTmp.customMethodV2 = new AnimCustomMethodVector2();
+            if (method != null) tweenTmp.customMethodV2.AddListener(method);
             tweenTmp.SetLoopType(repeatType, repeatCount);
             tweenTmp.Init(null, AnimType.CustomVector2, time, delayTime);
             GetInstance().animList.Add(tweenTmp);
             return tweenTmp;
         }
 
-        public static TweenScript CustomTweenVector3(AnimCustomMethodVector3 method, Vector3 from, Vector3 to,
+        public static TweenScript CustomTweenVector3(UnityAction<Vector3> method, Vector3 from, Vector3 to,
             float time = 0.5f,
             float delayTime = 0,
             LoopType repeatType = LoopType.Once,
@@ -77,7 +80,8 @@ namespace Tween
         {
             TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
             tweenTmp.SetValue(from, to);
-            tweenTmp.customMethodV3 = method;
+            tweenTmp.customMethodV3 = new AnimCustomMethodVector3();
+            if(method!=null)tweenTmp.customMethodV3.AddListener(method);
             tweenTmp.SetLoopType(repeatType, repeatCount);
             tweenTmp.Init(null, AnimType.CustomVector3, time, delayTime);
             GetInstance().animList.Add(tweenTmp);
@@ -175,11 +179,9 @@ namespace Tween
 
     public delegate void AnimCallBack(params object[] arg);
 
-    public delegate void AnimCustomMethodVector3(Vector3 data);
-
-    public delegate void AnimCustomMethodVector2(Vector2 data);
-
-    public delegate void AnimCustomMethodFloat(float data);
+//    public delegate void AnimCustomMethodVector3(Vector3 data);
+//    public delegate void AnimCustomMethodVector2(Vector2 data);
+//    public delegate void AnimCustomMethodFloat(float data);
 
     /// <summary>
     /// 动画类型
