@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Tween
 {
     [AddComponentMenu("Tween/MonoTweener")]
-    public class MonoTweener : MonoBehaviour
+    public class MonoTweener : MonoBehaviour,IConvertGameObjectToEntity
     {
         [System.Serializable]
         public class OnFinish : UnityEvent
@@ -24,6 +25,12 @@ namespace Tween
 
         private float currentTotalTime;
 
+        public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+        {
+            var data = new TweenerData() { Type = GetTween(0).AnimType };
+            dstManager.AddComponentData(entity, data);
+        }
+        
         /// <summary>
         /// 0-1 real value
         /// </summary>
@@ -121,14 +128,14 @@ namespace Tween
         // Update is called once per frame
         void Update()
         {
-            if (isPlaying)
-            {
-                currentTotalTime += ignoreTimeScale ? Time.unscaledDeltaTime : Time.deltaTime;
-                if (currentTotalTime >= delay)
-                {
-                    PlayAtTime(GetCurrentValue());
-                }
-            }
+//            if (isPlaying)
+//            {
+//                currentTotalTime += ignoreTimeScale ? Time.unscaledDeltaTime : Time.deltaTime;
+//                if (currentTotalTime >= delay)
+//                {
+//                    PlayAtTime(GetCurrentValue());
+//                }
+//            }
         }
 
         //Note Animation time
@@ -200,6 +207,11 @@ namespace Tween
             }
 
             return null;
+        }
+
+        public List<TweenScript> GetTweens()
+        {
+            return tweens;
         }
     }
 }
