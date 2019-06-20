@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
+using UnityEngine.Events;
 
 namespace Tween
 {
@@ -954,5 +953,20 @@ namespace Tween
             currentTime = 0;
             isDone = false;
         }
+    }
+    
+    [Serializable]
+    public class AnimCustomMethodVector3 : UnityEvent<Vector3>
+    {
+    }
+    
+    [Serializable]
+    public class AnimCustomMethodVector2 : UnityEvent<Vector2>
+    {
+    }
+    
+    [Serializable]
+    public class AnimCustomMethodFloat : UnityEvent<float>
+    {
     }
 }
