@@ -280,7 +280,7 @@ namespace Tween
             executeUpdate();
             executeCallBack();
             TweenUtil.GetInstance().animList.Remove(this);
-            StackObjectPool<TweenScript>.PutObject(this);
+            StackObjectPool<TweenScript>.Push(this);
         }
 
         //动画播放完毕执行回调

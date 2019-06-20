@@ -46,7 +46,7 @@ namespace Tween
             LoopType repeatType = LoopType.Once,
             int repeatCount = -1)
         {
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             tweenTmp.SetValue(from, to);
             tweenTmp.customMethodFloat = new AnimCustomMethodFloat();
             tweenTmp.customMethodFloat.AddListener(method);
@@ -62,7 +62,7 @@ namespace Tween
             LoopType repeatType = LoopType.Once,
             int repeatCount = -1)
         {
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             tweenTmp.SetValue(from, to);
             tweenTmp.customMethodV2 = new AnimCustomMethodVector2();
             if (method != null) tweenTmp.customMethodV2.AddListener(method);
@@ -78,7 +78,7 @@ namespace Tween
             LoopType repeatType = LoopType.Once,
             int repeatCount = -1)
         {
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             tweenTmp.SetValue(from, to);
             tweenTmp.customMethodV3 = new AnimCustomMethodVector3();
             if(method!=null)tweenTmp.customMethodV3.AddListener(method);
@@ -100,7 +100,7 @@ namespace Tween
             }
 
             GetInstance().animList.Remove(tweenData);
-            StackObjectPool<TweenScript>.PutObject(tweenData);
+            StackObjectPool<TweenScript>.Push(tweenData);
         }
 
         public static void ClearAllAnim(bool isCallBack = false)
@@ -136,7 +136,7 @@ namespace Tween
             if (a != null)
             {
                 animList.Remove(a);
-                StackObjectPool<TweenScript>.PutObject(a);
+                StackObjectPool<TweenScript>.Push(a);
             }
 
             animList.Add(tweenScript);
@@ -154,7 +154,7 @@ namespace Tween
                     {
                         animList.Remove(tweenTmp);
                         i--;
-                        StackObjectPool<TweenScript>.PutObject(tweenTmp);
+                        StackObjectPool<TweenScript>.Push(tweenTmp);
                     }
 
                     tweenTmp.executeCallBack(); // todo this is bug.

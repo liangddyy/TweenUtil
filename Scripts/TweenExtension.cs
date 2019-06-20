@@ -81,7 +81,7 @@ namespace Tween
                     TweenScript tweenData = TweenUtil.GetInstance().animList[i];
                     TweenUtil.GetInstance().animList.RemoveAt(i);
                     i--;
-                    StackObjectPool<TweenScript>.PutObject(tweenData);
+                    StackObjectPool<TweenScript>.Push(tweenData);
                 }
             }
         }
@@ -93,7 +93,7 @@ namespace Tween
         public static TweenScript TnLocalMove(this Transform trans, Vector3 to, float time = 0.5f,
             float delayTime = 0)
         {
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             tweenTmp.SetValue(trans.localPosition, to);
             tweenTmp.isLocal = true;
             tweenTmp.Init(trans.gameObject,AnimType.Position,time,delayTime);
@@ -104,7 +104,7 @@ namespace Tween
         public static TweenScript TnMove(this Transform trans, Vector3 to, float time = 0.5f,
             float delayTime = 0, Transform toTransform = null)
         {
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             tweenTmp.isLocal = false;
             tweenTmp.SetValue(trans.position, to);
             tweenTmp.toTransform = toTransform;
@@ -118,7 +118,7 @@ namespace Tween
             float delayTime = 0,
             bool isLocal = true)
         {
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             tweenTmp.SetValue(isLocal ? trans.localEulerAngles : trans.eulerAngles, to);
             tweenTmp.isLocal = isLocal;
             tweenTmp.Init(trans.gameObject,AnimType.Rotate,time,delayTime);
@@ -130,7 +130,7 @@ namespace Tween
             float time = 0.5f,
             float delayTime = 0)
         {
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             tweenTmp.SetValue(trans.localScale, to);
             tweenTmp.Init(trans.gameObject,AnimType.Scale,time,delayTime);
             TweenUtil.GetInstance().AddTween(tweenTmp);
@@ -141,7 +141,7 @@ namespace Tween
             float time = 0.5f,
             float delayTime = 0)
         {
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             tweenTmp.SetValue(from, to);
             tweenTmp.Init(trans.gameObject,AnimType.Color,time,delayTime);
             TweenUtil.GetInstance().AddTween(tweenTmp);
@@ -152,7 +152,7 @@ namespace Tween
             float time = 0.5f,
             float delayTime = 0)
         {
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             tweenTmp.SetValue(from, to);
             tweenTmp.Init(trans.gameObject,AnimType.Alpha,time,delayTime);
             TweenUtil.GetInstance().AddTween(tweenTmp);
@@ -166,7 +166,7 @@ namespace Tween
             float time = 0.5f,
             float delayTime = 0)
         {
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             tweenTmp.SetValue(rectTrans.anchoredPosition3D, to);
             
             tweenTmp.Init(rectTrans.gameObject,AnimType.UiAnchoredPosition,time,delayTime);
@@ -183,7 +183,7 @@ namespace Tween
             float delayTime = 0)
         {
             Vector2 fromTmp = rectTrans.sizeDelta;
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             tweenTmp.SetValue(fromTmp, to);
             tweenTmp.Init(rectTrans.gameObject,AnimType.UiSize,time,delayTime);
             TweenUtil.GetInstance().AddTween(tweenTmp);
@@ -197,7 +197,7 @@ namespace Tween
             float time = 0.5f,
             float delayTime = 0)
         {
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             
             tweenTmp.blinkTime = space;
 
@@ -212,7 +212,7 @@ namespace Tween
             bool isLocal = false,
             PathType pathType = PathType.CatmullRom)
         {
-            TweenScript tweenTmp = StackObjectPool<TweenScript>.GetObject();
+            TweenScript tweenTmp = StackObjectPool<TweenScript>.Get();
             if (pathType == PathType.Line)
             {
                 pathType = PathType.CatmullRom;

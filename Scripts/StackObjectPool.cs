@@ -25,7 +25,7 @@ namespace Tween
     /// 堆对象管理
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class StackObjectPool<T> where T : new()
+    public class StackObjectPool<T> where T : IStackObject, new()
     {
         static Stack<T> stackPool = new Stack<T>();
 
@@ -33,47 +33,29 @@ namespace Tween
         /// Pop对象
         /// </summary>
         /// <returns></returns>
-        public static T GetObject()
+        public static T Get()
         {
             T obj;
-            IStackObject heapObj;
-
             if (stackPool.Count > 0)
             {
                 obj = stackPool.Pop();
-                heapObj = obj as IStackObject;
             }
             else
             {
                 obj = new T();
-                heapObj = obj as IStackObject;
-                if (heapObj != null)
-                {
-                    heapObj.OnInit();
-                }
+                obj.OnInit();
             }
 
-            if (heapObj != null)
-            {
-                heapObj.OnPop();
-            }
-
+            obj.OnPop();
             return obj;
         }
 
-        /// <summary>
-        /// Push对象
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        public static void PutObject(T obj)
+        public static void Push(T obj)
         {
-            IStackObject heapObj = obj as IStackObject;
-
-            if (heapObj != null)
+            if (obj != null)
             {
-                heapObj.OnPush();
+                obj.OnPush();
             }
-
             stackPool.Push(obj);
         }
     }
@@ -82,19 +64,15 @@ namespace Tween
 
     public class StackObjectDict
     {
-        #region string, object字典
-
-        public static Dictionary<string, object> GetSODict()
-        {
-            return StackObjectPool<Dictionary<string, object>>.GetObject();
-        }
-
-        public static void PutSODict(Dictionary<string, object> dict)
-        {
-            dict.Clear();
-            StackObjectPool<Dictionary<string, object>>.PutObject(dict);
-        }
-
-        #endregion
+//        public static Dictionary<string, object> GetSODict()
+//        {
+//            return StackObjectPool<Dictionary<string, object>>.GetObject();
+//        }
+//
+//        public static void PutSODict(Dictionary<string, object> dict)
+//        {
+//            dict.Clear();
+//            StackObjectPool<Dictionary<string, object>>.PutObject(dict);
+//        }
     }
 }
