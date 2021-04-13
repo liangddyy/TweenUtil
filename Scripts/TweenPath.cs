@@ -139,11 +139,11 @@ namespace Tween
         }
     }
 
-    [Serializable]
-    public class PathData
-    {
-        public List<Vector3> Nodes;
-        public Ease Ease;
-        public LoopType LoopType;
-    }
+    // [Serializable]
+    // public class PathData
+    // {
+    //     public List<Vector3> Nodes;
+    //     public Ease Ease;
+    //     public LoopType LoopType;
+    // }
 }

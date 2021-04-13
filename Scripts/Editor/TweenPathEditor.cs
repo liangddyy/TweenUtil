@@ -141,9 +141,14 @@ namespace Tween
             {
                 Undo.RecordObject(curve, "adding node");
                 int indexInsert = l.index >= curve.LocalNodes.Count ? curve.LocalNodes.Count : l.index;
-                var tmp = curve.ExamplePosition == null
-                    ? curve.LocalNodes[indexInsert]
-                    : curve.ExamplePosition.transform.position - curve.transform.position;
+                var tmp = curve.transform.position;
+                if (curve.ExamplePosition != null)
+                {
+                    tmp = curve.ExamplePosition.transform.position - curve.transform.position;
+                }else if (curve.LocalNodes.Count > 0 && indexInsert >= 0)
+                {
+                    tmp = curve.LocalNodes[indexInsert];
+                }
 
                 if (indexInsert < 0) indexInsert = 0;
                 curve.LocalNodes.Insert(indexInsert, tmp);
